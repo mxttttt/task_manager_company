@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import "./App.css";
+import PrivateRoute from "./pages/private/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
 import DevHomePage from "./pages/DevHomePage";
+import Cookies from "js-cookie";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(Cookies.get("loggedIn") === "true");
   const history = useHistory();
 
   useEffect(() => {
-    const authenticatedUser = localStorage.getItem("user");
+    const authenticatedUser = Cookies.get("user");
     if (authenticatedUser) {
       setUser(JSON.parse(authenticatedUser));
+      setLoggedIn(true);
     }
   }, []);
 
@@ -33,7 +37,8 @@ function App() {
   function handleLogout() {
     // Clear the user's authentication state and local storage
     setUser(null);
-    localStorage.removeItem("user");
+    Cookies.remove("user"); // Remove the user cookie
+    Cookies.remove("loggedIn"); // Remove the user cookie
   }
 
   return (
@@ -60,21 +65,25 @@ function App() {
         </div>
       </div>
       <Router>
-        <Route
-          path="/login"
-          render={(props) => (
+        <Switch>
+          <Route path="/login">
             <LoginPage
               setUser={(user) => {
                 setUser(user);
+                setLoggedIn(true);
                 // Store the authenticated user in local storage
-                localStorage.setItem("user", JSON.stringify(user));
+                Cookies.set("user", JSON.stringify(user));
               }}
               getDashboardRoute={getDashboardRoute}
-              history={props.history}
+              history={history}
+              setLoggedIn={setLoggedIn}
             />
-          )}
-        />
-        <Route path="/dev" component={DevHomePage} />
+          </Route>
+          <PrivateRoute path="/dev" component={DevHomePage} loggedIn={loggedIn} />
+          <Route path="/">
+            <Redirect to="/login" />
+          </Route>
+        </Switch>
       </Router>
     </div>
   );

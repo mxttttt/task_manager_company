@@ -3,14 +3,14 @@ import "../App.css";
 import Axios from "axios";
 import { withRouter } from "react-router";
 import bcrypt from "bcryptjs";
-
+import Cookies from "js-cookie";
 // // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
 // const salt = bcrypt.genSaltSync(10);
 // console.log(salt);
-// const hashedPassword2 = bcrypt.hashSync("123456", salt);
+// const hashedPassword2 = bcrypt.hashSync("", salt);
 // console.log(hashedPassword2);
 
-function LoginPage({ setUser, history, getDashboardRoute }) {
+function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const [error, setError] = useState(null);
@@ -39,9 +39,10 @@ function LoginPage({ setUser, history, getDashboardRoute }) {
             setError(null); // Clear error message
             console.log("Vous êtes connecté");
             history.push(getDashboardRoute(user.user_job_id));
-
             // Update the user state in the App component
             setUser(user);
+            setLoggedIn(true);
+            Cookies.set("loggedIn", "true");
           } else {
             setError("Email ou mot de passe incorrect");
           }
