@@ -6,6 +6,12 @@ import PrivateRoute from "./pages/private/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
 import DevHomePage from "./pages/DevHomePage";
 import Cookies from "js-cookie";
+import GrapHomePage from "./pages/GraphHomePage";
+import OfficeHomePage from "./pages/OfficeHomePage";
+import PhotoHomePage from "./pages/PhotoHomePage";
+import SocialNetworkHomePage from "./pages/SocialNetworkHomePage";
+import SpaceManagementHomePage from "./pages/SpaceManagementHomePage";
+import UpinkHomePage from "./pages/UpinkHomePage";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -80,8 +86,14 @@ function App() {
               setLoggedIn={setLoggedIn}
             />
           </Route>
-          {console.log("User from App:", user)}
+
           <PrivateRoute path="/dev" component={DevHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute path="/office" component={OfficeHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute path="/photo" component={PhotoHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute path="/social-network" component={SocialNetworkHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute path="/space-management" component={SpaceManagementHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute path="/up-ink" component={UpinkHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute path="/graphism" component={GrapHomePage} loggedIn={loggedIn} user={user} />
           <Route path="/">
             <Redirect to="/login" />
           </Route>
