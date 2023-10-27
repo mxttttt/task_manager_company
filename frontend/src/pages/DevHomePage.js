@@ -4,7 +4,12 @@ import Axios from "axios";
 function DevHomePage({ user }) {
   const [tasks, setTasks] = useState([]);
   const [userTask, setUserTask] = useState([]); //get user task from user_task table by is user_id in user_task table
-  const [taskData, setTaskData] = useState({ taskId: "0", taskName: "0", timeSpent: "0" });
+  const [taskData, setTaskData] = useState({
+    taskId: "0",
+    taskName: "0",
+    taskCode: "0", // Add taskCode to the state
+    timeSpent: "0",
+  });
 
   useEffect(() => {
     // Fetch tasks for the logged-in user
@@ -37,10 +42,10 @@ function DevHomePage({ user }) {
         ...prevTaskData,
         [name]: value,
         taskName: selectedTask ? selectedTask.task_name : prevTaskData.taskName,
+        taskCode: selectedTask ? selectedTask.task_code : prevTaskData.taskCode,
       };
     });
   };
-  console.log(taskData);
 
   const handleAddTask = () => {
     // Post the time spent on the selected task to your server
@@ -49,15 +54,13 @@ function DevHomePage({ user }) {
       user_email: user.email,
       task_id: taskData.taskId,
       task_name: taskData.taskName,
+      task_code: taskData.taskCode,
       time_spent: taskData.timeSpent,
     })
       .then((response) => {
-        // Refresh the tasks list or perform other actions as needed
-        console.log("Time spent on task has been posted successfully.");
         //get user tasks by is user_job_id in user_task table
         Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
           .then((response) => {
-            console.log(response.data.id);
             setUserTask(response.data);
           })
           .catch((error) => {
@@ -91,10 +94,9 @@ function DevHomePage({ user }) {
       <h1>Dev Home Page</h1>
       <h2>Tasks:</h2>
       <ul>
-        {/* get user task from user_task table */}
         {userTask.map((task) => (
           <li key={task.id}>
-            {task.task_name} - {task.time_spent} hours
+            {task.task_name} - {task.task_code} - {task.time_spent} hours
             <button onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
           </li>
         ))}

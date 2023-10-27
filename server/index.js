@@ -48,10 +48,11 @@ app.post("/user_task", (req, res) => {
   const user_email = req.body.user_email;
   const task_id = req.body.task_id;
   const task_name = req.body.task_name;
+  const task_code = req.body.task_code;
   const time_spent = req.body.time_spent;
   db.query(
-    "INSERT INTO user_task (user_id, user_email, task_id, task_name, time_spent) VALUES (?,?,?,?,?)",
-    [user_id, user_email, task_id, task_name, time_spent],
+    "INSERT INTO user_task (user_id, user_email, task_id, task_name, task_code, time_spent) VALUES (?,?,?,?,?,?)",
+    [user_id, user_email, task_id, task_name, task_code, time_spent],
     (err, result) => {
       if (err) console.log(err);
       res.send(result);
