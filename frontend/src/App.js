@@ -15,7 +15,8 @@ function App() {
   useEffect(() => {
     const authenticatedUser = Cookies.get("user");
     if (authenticatedUser) {
-      setUser(JSON.parse(authenticatedUser));
+      const parsedUser = JSON.parse(authenticatedUser);
+      setUser(parsedUser);
       setLoggedIn(true);
     }
   }, []);
@@ -79,7 +80,8 @@ function App() {
               setLoggedIn={setLoggedIn}
             />
           </Route>
-          <PrivateRoute path="/dev" component={DevHomePage} loggedIn={loggedIn} />
+          {console.log("User from App:", user)}
+          <PrivateRoute path="/dev" component={DevHomePage} loggedIn={loggedIn} user={user} />
           <Route path="/">
             <Redirect to="/login" />
           </Route>

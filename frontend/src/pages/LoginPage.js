@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import "../App.css";
 import Axios from "axios";
 import { withRouter } from "react-router";
@@ -14,6 +14,17 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Check if the user is already logged in
+    if (Cookies.get("loggedIn") === "true") {
+      const authenticatedUser = Cookies.get("user");
+      if (authenticatedUser) {
+        const parsedUser = JSON.parse(authenticatedUser);
+        history.push(getDashboardRoute(parsedUser.user_job_id));
+      }
+    }
+  }, [history, getDashboardRoute]);
 
   function submitHandler(event) {
     event.preventDefault();
@@ -32,7 +43,7 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
           setError("Email ou mot de passe incorrect ou vide");
         } else {
           const user = response.data[0]; // Assuming you get one user matching the email
-
+          console.log(user);
           // Now, use the retrieved user's salt to hash the entered password
           const hashedPassword = bcrypt.hashSync(enteredPassword, user.salt);
           if (hashedPassword === user.password) {
@@ -43,6 +54,7 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
             setUser(user);
             setLoggedIn(true);
             Cookies.set("loggedIn", "true");
+            Cookies.set("user", JSON.stringify(user));
           } else {
             setError("Email ou mot de passe incorrect");
           }
