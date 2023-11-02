@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 // // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
 // const salt = bcrypt.genSaltSync(10);
 // console.log(salt);
-// const hashedPassword2 = bcrypt.hashSync("", salt);
+// const hashedPassword2 = bcrypt.hashSync("6Zj4bD6kBQ7l", salt);
 // console.log(hashedPassword2);
 
 function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {

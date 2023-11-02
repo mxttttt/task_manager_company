@@ -82,7 +82,7 @@ app.delete("/user_task/:id", (req, res) => {
 
 //get clients from the client table
 app.get("/clients", (req, res) => {
-  db.query("SELECT * FROM client", (err, result) => {
+  db.query("SELECT * FROM client ORDER BY id", (err, result) => {
     if (err) console.log(err);
     res.send(result);
   });

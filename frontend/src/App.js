@@ -12,6 +12,7 @@ import PhotoHomePage from "./pages/PhotoHomePage";
 import SocialNetworkHomePage from "./pages/SocialNetworkHomePage";
 import SpaceManagementHomePage from "./pages/SpaceManagementHomePage";
 import UpinkHomePage from "./pages/UpinkHomePage";
+import AdminHomePage from "./pages/AdminHomePage";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -33,9 +34,19 @@ function App() {
       case 1:
         return "/dev";
       case 2:
-        return "/manager";
+        return "/graphism";
       case 3:
-        return "/employee";
+        return "/social-network";
+      case 4:
+        return "/photo";
+      case 5:
+        return "/office";
+      case 6:
+        return "/space-management";
+      case 7:
+        return "/up-ink";
+      case 8:
+        return "/admin";
       default:
         return "/login";
     }
@@ -94,6 +105,7 @@ function App() {
           <PrivateRoute path="/space-management" component={SpaceManagementHomePage} loggedIn={loggedIn} user={user} />
           <PrivateRoute path="/up-ink" component={UpinkHomePage} loggedIn={loggedIn} user={user} />
           <PrivateRoute path="/graphism" component={GrapHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute path="/admin" component={AdminHomePage} loggedIn={loggedIn} user={user} />
           <Route path="/">
             <Redirect to="/login" />
           </Route>
