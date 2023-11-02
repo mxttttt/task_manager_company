@@ -208,6 +208,7 @@ function DevHomePage({ user }) {
   const totalTimeSpent = calculateTotalTimeSpent(userTask);
   const timeRemaining = totalWorkingHoursPerDay - totalTimeSpent;
   const totalFormatted = formatHoursAndMinutes(timeRemaining);
+  const totalCumulatedTime = calculateTotalTimeSpent(userTask);
 
   return (
     <div>
@@ -240,7 +241,8 @@ function DevHomePage({ user }) {
         </tbody>
       </table>
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      <p>Time Remaining: {totalFormatted}</p>
+      <p>Time Remaining: {timeRemaining <= 0 ? "Vous avez atteint votre quota horaire pour la journée." : totalFormatted}</p>
+      {timeRemaining <= 0 && <p>Total de votre journée : {formatHoursAndMinutes(totalCumulatedTime)} heures.</p>}
 
       <TaskForm
         clients={clients}

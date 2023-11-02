@@ -33,10 +33,10 @@ function TaskForm({ clients, clientDevis, tasks, taskData, handleClientChange, h
             </option>
           ))}
         </select>
-        <label htmlFor="timeSpent">Time Spent (in hours):</label>
+        <label htmlFor="timeSpent">Time Spent :</label>
         <input type="text" id="timeSpent" name="timeSpent" value={taskData.timeSpent} onChange={handleTaskChange} />
         <button type="button" onClick={handleAddTask}>
-          Add Time Spent
+          Add Task
         </button>
       </form>
     </div>
