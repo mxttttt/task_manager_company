@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import TaskForm from "../components/TaskForm";
-
+import moment from "moment";
 function DevHomePage({ user }) {
   const [tasks, setTasks] = useState([]);
   const [userTask, setUserTask] = useState([]); // get user task from user_task table by user_id in user_task table
@@ -16,6 +16,9 @@ function DevHomePage({ user }) {
   const [clients, setClients] = useState([]);
   const [clientDevis, setClientDevis] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  // get current date
+  const currentDate = moment();
+  const formattedDate = currentDate.format("YYYY-MM-DD");
 
   useEffect(() => {
     // Fetch tasks for the logged-in user
@@ -100,6 +103,7 @@ function DevHomePage({ user }) {
       time_spent: timeSpent,
       client: taskData.clientName,
       devis: taskData.devisCode,
+      date: formattedDate,
     })
       .then((response) => {
         // get user tasks by user_id in user_task table
@@ -210,23 +214,34 @@ function DevHomePage({ user }) {
   const totalFormatted = formatHoursAndMinutes(timeRemaining);
   const totalCumulatedTime = calculateTotalTimeSpent(userTask);
 
+  const markTaskAsDone = () => {
+    Axios.post("http://localhost:3002/task_done", { user_id: user.id, date: formattedDate })
+      .then((response) => {
+        // Mettez à jour l'état des tâches côté client pour refléter que toutes les tâches sont terminées.
+        setUserTask((tasks) => tasks.map((task) => ({ ...task, completed: true })));
+      })
+      .catch((error) => {
+        console.error("Error marking all tasks as completed:", error);
+      });
+  };
+  const activeUserTasks = userTask.filter((task) => task.completed !== 1);
   return (
     <div>
       <h1>Dev Home Page</h1>
-      <h2>Tasks:</h2>
+      <h2>Taches effectuées :</h2>
       <table>
         <thead>
           <tr>
-            <th>Client Name</th>
-            <th>Devis Code</th>
-            <th>Task Name</th>
-            <th>Task Code</th>
-            <th>Time Spent</th>
-            <th>Action</th>
+            <th>Client : </th>
+            <th>Devis n° : </th>
+            <th>Tache : </th>
+            <th>Code : </th>
+            <th>Temps : </th>
+            <th>Action : </th>
           </tr>
         </thead>
         <tbody>
-          {userTask.map((task) => (
+          {activeUserTasks.map((task) => (
             <tr key={task.id}>
               <td>{task.client_name}</td>
               <td>{task.devis_code}</td>
@@ -241,7 +256,7 @@ function DevHomePage({ user }) {
         </tbody>
       </table>
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      <p>Time Remaining: {timeRemaining <= 0 ? "Vous avez atteint votre quota horaire pour la journée." : totalFormatted}</p>
+      <p>Temps restant à effectué: {timeRemaining <= 0 ? "Vous avez atteint votre quota horaire pour la journée." : totalFormatted}</p>
       {timeRemaining <= 0 && <p>Total de votre journée : {formatHoursAndMinutes(totalCumulatedTime)} heures.</p>}
 
       <TaskForm
@@ -254,6 +269,7 @@ function DevHomePage({ user }) {
         handleTaskChange={handleTaskChange}
         handleAddTask={handleAddTask}
       />
+      <button onClick={markTaskAsDone}>Marquer toutes les tâches comme terminées</button>
     </div>
   );
 }

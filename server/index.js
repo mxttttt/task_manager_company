@@ -52,9 +52,11 @@ app.post("/user_task", (req, res) => {
   const time_spent = req.body.time_spent;
   const client = req.body.client;
   const devis = req.body.devis;
+  const date = req.body.date;
+  const completed = 0;
   db.query(
-    "INSERT INTO user_task (user_id, user_email, task_id, client_name, devis_code, task_name, task_code, time_spent) VALUES (?,?,?,?,?,?,?,?)",
-    [user_id, user_email, task_id, client, devis, task_name, task_code, time_spent],
+    "INSERT INTO user_task (user_id, user_email, task_id, client_name, devis_code, task_name, task_code, time_spent, completed, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+    [user_id, user_email, task_id, client, devis, task_name, task_code, time_spent, completed, date],
     (err, result) => {
       if (err) console.log(err);
       res.send(result);
@@ -92,6 +94,17 @@ app.get("/clients", (req, res) => {
 app.get("/devis", (req, res) => {
   const client_id = req.query.client_id;
   db.query("SELECT * FROM devis_client WHERE id_client = ?", [client_id], (err, result) => {
+    if (err) console.log(err);
+    res.send(result);
+  });
+});
+
+//mark the task as done
+app.post("/task_done", (req, res) => {
+  const user_id = req.body.user_id;
+  const date = req.body.date;
+  const query = "UPDATE user_task SET completed = true WHERE user_id = ? AND created_at = ?";
+  db.query(query, [user_id, date], (err, result) => {
     if (err) console.log(err);
     res.send(result);
   });
