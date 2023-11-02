@@ -1,7 +1,7 @@
 function GrapHomePage() {
   return (
     <div>
-      <h1>Graphist Home Page Test</h1>
+      <h1>Graphist Home Page</h1>
     </div>
   );
 }
