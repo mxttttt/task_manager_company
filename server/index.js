@@ -50,9 +50,11 @@ app.post("/user_task", (req, res) => {
   const task_name = req.body.task_name;
   const task_code = req.body.task_code;
   const time_spent = req.body.time_spent;
+  const client = req.body.client;
+  const devis = req.body.devis;
   db.query(
-    "INSERT INTO user_task (user_id, user_email, task_id, task_name, task_code, time_spent) VALUES (?,?,?,?,?,?)",
-    [user_id, user_email, task_id, task_name, task_code, time_spent],
+    "INSERT INTO user_task (user_id, user_email, task_id, client_name, devis_code, task_name, task_code, time_spent) VALUES (?,?,?,?,?,?,?,?)",
+    [user_id, user_email, task_id, client, devis, task_name, task_code, time_spent],
     (err, result) => {
       if (err) console.log(err);
       res.send(result);
@@ -73,6 +75,23 @@ app.get("/get/user_task", (req, res) => {
 app.delete("/user_task/:id", (req, res) => {
   const id = req.params.id;
   db.query("DELETE FROM user_task WHERE id = ?", [id], (err, result) => {
+    if (err) console.log(err);
+    res.send(result);
+  });
+});
+
+//get clients from the client table
+app.get("/clients", (req, res) => {
+  db.query("SELECT * FROM client", (err, result) => {
+    if (err) console.log(err);
+    res.send(result);
+  });
+});
+
+//get client devis by the client id in the devis table
+app.get("/devis", (req, res) => {
+  const client_id = req.query.client_id;
+  db.query("SELECT * FROM devis_client WHERE id_client = ?", [client_id], (err, result) => {
     if (err) console.log(err);
     res.send(result);
   });
