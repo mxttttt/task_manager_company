@@ -64,12 +64,16 @@ app.post("/user_task", (req, res) => {
   );
 });
 
-//get user task by is user_id in user_task table
+// get user task by user_id in user_task table, sorted by created_at in descending order
 app.get("/get/user_task", (req, res) => {
   const user_id = req.query.user_id;
-  db.query("SELECT * FROM user_task WHERE user_id = ?", [user_id], (err, result) => {
-    if (err) console.log(err);
-    res.send(result);
+  db.query("SELECT * FROM user_task WHERE user_id = ? ORDER BY created_at DESC", [user_id], (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.send(result);
+    }
   });
 });
 

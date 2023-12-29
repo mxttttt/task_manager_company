@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import TaskForm from "../components/TaskForm";
 import moment from "moment";
+
 function DevHomePage({ user }) {
   const [tasks, setTasks] = useState([]);
   const [userTask, setUserTask] = useState([]); // get user task from user_task table by user_id in user_task table
@@ -92,7 +93,9 @@ function DevHomePage({ user }) {
     // Reset the error message if validation passes
     setErrorMessage("");
     // Parse the time input using the parseTimeInput function
-    const timeSpent = parseTimeInput(taskData.timeSpent);
+    // convert time into minutes
+
+    const timeSpent = parseTimeInput(taskData.timeSpent) * 60;
     // Post the time spent on the selected task to your server
     Axios.post("http://localhost:3002/user_task", {
       user_id: user.id,
@@ -209,10 +212,11 @@ function DevHomePage({ user }) {
     return tasks.reduce((totalTime, task) => totalTime + parseFloat(task.time_spent), 0);
   };
 
-  const totalTimeSpent = calculateTotalTimeSpent(userTask);
+  const totalTimeSpent = calculateTotalTimeSpent(userTask) / 60;
   const timeRemaining = totalWorkingHoursPerDay - totalTimeSpent;
   const totalFormatted = formatHoursAndMinutes(timeRemaining);
-  const totalCumulatedTime = calculateTotalTimeSpent(userTask);
+
+  const totalCumulatedTime = calculateTotalTimeSpent(userTask) / 60;
 
   const markTaskAsDone = () => {
     Axios.post("http://localhost:3002/task_done", { user_id: user.id, date: formattedDate })
@@ -224,7 +228,7 @@ function DevHomePage({ user }) {
         console.error("Error marking all tasks as completed:", error);
       });
   };
-  const activeUserTasks = userTask.filter((task) => task.completed !== 1);
+  const activeUserTasks = userTask.filter((task) => task.completed === 0);
   return (
     <div>
       <h1>Dev Home Page</h1>
@@ -247,7 +251,7 @@ function DevHomePage({ user }) {
               <td>{task.devis_code}</td>
               <td>{task.task_name}</td>
               <td>{task.task_code}</td>
-              <td>{formatHoursAndMinutes(task.time_spent)}</td>
+              <td>{formatHoursAndMinutes(task.time_spent / 60)}</td>
               <td>
                 <button onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
               </td>
