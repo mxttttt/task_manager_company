@@ -62,9 +62,9 @@ function App() {
   return (
     <div className="App">
       <div className="navbar">
-        <div className="container">
+        <div className=" flex justify-between w-full p-3 px-4">
           <h1 className="logo">HopopTask</h1>
-          <div className="navlinks">
+          <div className="bg-slate-100">
             {user ? (
               <div>
                 <ul>
