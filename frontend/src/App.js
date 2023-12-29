@@ -13,7 +13,7 @@ import SocialNetworkHomePage from "./pages/SocialNetworkHomePage";
 import SpaceManagementHomePage from "./pages/SpaceManagementHomePage";
 import UpinkHomePage from "./pages/UpinkHomePage";
 import AdminHomePage from "./pages/AdminHomePage";
-import { Button } from "@chakra-ui/react";
+import { Avatar, Button, Stack, Text } from "@chakra-ui/react";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -70,20 +70,19 @@ function App() {
               <div>
                 <ul>
                   <li>
-                    <Button variant={"outline"} onClick={handleLogout}>
-                      {" "}
-                      Disconnect{" "}
-                    </Button>
+                    <Stack direction={"row"} spacing={4}>
+                      <Avatar size={"sm"} name={user.first_name} src="https://bit.ly/broken-link" />
+                      {console.log(user)}
+                      <Button variant={"outline"} onClick={handleLogout}>
+                        {" "}
+                        Disconnect{" "}
+                      </Button>
+                    </Stack>
                   </li>
                 </ul>
               </div>
             ) : (
-              // If the user is not authenticated, display the "Se connecter" link
-
-              <Button variant={"outline"} as={"a"} href="/login" display={"flex"}>
-                {" "}
-                Se connecter{" "}
-              </Button>
+              <Text></Text>
             )}
           </div>
         </div>

@@ -4,6 +4,9 @@ import Axios from "axios";
 import { withRouter } from "react-router";
 import bcrypt from "bcryptjs";
 import Cookies from "js-cookie";
+import { Box, Button, Checkbox, Container, FormControl, FormLabel, Heading, HStack, Input, Stack, Text } from "@chakra-ui/react";
+import { Logo } from "../components/Logo";
+import { PasswordField } from "../components/PasswordField";
 // // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
 // const salt = bcrypt.genSaltSync(10);
 // console.log(salt);
@@ -67,21 +70,86 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
   }
 
   return (
-    <div className="LoginPage">
-      <h1>Se connecter</h1>
-      {error && <p className="error-message">{error}</p>} {/* Conditional rendering for error message */}
-      <form onSubmit={submitHandler}>
-        <div className="form-control">
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" ref={emailInputRef} />
-        </div>
-        <div className="form-control">
-          <label htmlFor="password">Mot de passe</label>
-          <input type="password" id="password" ref={passwordInputRef} />
-        </div>
-        <button>Se connecter</button>
-      </form>
-    </div>
+    <Container
+      maxW="lg"
+      py={{
+        base: "12",
+        md: "24",
+      }}
+      px={{
+        base: "0",
+        sm: "8",
+      }}
+    >
+      <Stack spacing="8">
+        <Stack spacing="6">
+          <Logo />
+          <Stack
+            spacing={{
+              base: "2",
+              md: "3",
+            }}
+            textAlign="center"
+          >
+            <Heading
+              size={{
+                base: "xs",
+                md: "sm",
+              }}
+            >
+              Connectez-vous à votre compte
+            </Heading>
+          </Stack>
+        </Stack>
+        <Box
+          py={{
+            base: "0",
+            sm: "8",
+          }}
+          px={{
+            base: "4",
+            sm: "10",
+          }}
+          bg={{
+            base: "transparent",
+            sm: "bg.surface",
+          }}
+          boxShadow={{
+            base: "none",
+            sm: "md",
+          }}
+          borderRadius={{
+            base: "none",
+            sm: "xl",
+          }}
+        >
+          <Stack spacing="6" as={"form"} onSubmit={submitHandler}>
+            <Stack spacing="5">
+              <FormControl>
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <Input id="email" type="email" ref={emailInputRef} />
+              </FormControl>
+              <PasswordField ref={passwordInputRef} />
+            </Stack>
+            <HStack justify="space-between">
+              <Checkbox defaultChecked>Remember me</Checkbox>
+              <Button variant="text" size="sm">
+                Forgot password?
+              </Button>
+            </HStack>
+            <Stack
+              spacing={{
+                base: "2",
+                md: "3",
+              }}
+            >
+              {error && <Text color="red.500">{error}</Text>}
+            </Stack>
+            <Button type="submit">Sign in</Button>
+          </Stack>
+        </Box>
+      </Stack>
+    </Container>
   );
 }
 
