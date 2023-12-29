@@ -13,6 +13,7 @@ import SocialNetworkHomePage from "./pages/SocialNetworkHomePage";
 import SpaceManagementHomePage from "./pages/SpaceManagementHomePage";
 import UpinkHomePage from "./pages/UpinkHomePage";
 import AdminHomePage from "./pages/AdminHomePage";
+import { Button } from "@chakra-ui/react";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -62,22 +63,27 @@ function App() {
   return (
     <div className="App">
       <div className="navbar">
-        <div className=" flex justify-between w-full p-3 px-4">
+        <div className="flex justify-between w-full p-3 px-4">
           <h1 className="logo">HopopTask</h1>
           <div className="bg-slate-100">
             {user ? (
               <div>
                 <ul>
                   <li>
-                    <a href="/" onClick={handleLogout}>
-                      Disconnect
-                    </a>
+                    <Button variant={"outline"} onClick={handleLogout}>
+                      {" "}
+                      Disconnect{" "}
+                    </Button>
                   </li>
                 </ul>
               </div>
             ) : (
               // If the user is not authenticated, display the "Se connecter" link
-              <a href="/login">Se connecter</a>
+
+              <Button variant={"outline"} as={"a"} href="/login" display={"flex"}>
+                {" "}
+                Se connecter{" "}
+              </Button>
             )}
           </div>
         </div>
