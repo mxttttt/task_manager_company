@@ -4,7 +4,19 @@ import Axios from "axios";
 import { withRouter } from "react-router";
 import bcrypt from "bcryptjs";
 import Cookies from "js-cookie";
-import { Box, Button, Checkbox, Container, FormControl, FormLabel, Heading, HStack, Input, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControl,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { Logo } from "../components/Logo";
 import { PasswordField } from "../components/PasswordField";
 // // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
