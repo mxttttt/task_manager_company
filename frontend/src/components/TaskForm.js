@@ -1,76 +1,55 @@
 import React from "react";
-import {
-  Button,
-  Card,
-  CardBody,
-  Container,
-  HStack,
-  Stack,
-  Text,
-  Select,
-  Input,
-} from "@chakra-ui/react";
-function TaskForm({
-  clients,
-  clientDevis,
-  tasks,
-  taskData,
-  handleClientChange,
-  handleDevisChange,
-  handleTaskChange,
-  handleAddTask,
-}) {
+import { Button, Card, CardBody, Container, HStack, Stack, Text, Select, Input, FormLabel, FormControl } from "@chakra-ui/react";
+import { CheckIcon } from "@chakra-ui/icons";
+function TaskForm({ clients, clientDevis, tasks, taskData, handleClientChange, handleDevisChange, handleTaskChange, handleAddTask }) {
   return (
-    <Container margin={"auto"}>
-      <Stack spacing={4} mb={4} direction={"row"} margin={"auto"}>
+    <Container width={"full"} maxW={"unset"}>
+      <Stack spacing={4} mb={4} direction={"column"}>
         <h2>Ajouter une tache à votre journée :</h2>
-        <form>
-          <label htmlFor="client">Client : </label>
-          <Select id="client" name="clientId" onChange={handleClientChange}>
-            <option value="">Client : </option>
-            {clients.map((client) => (
-              <option key={client.id} value={client.id}>
-                {client.client_name}
-              </option>
-            ))}
-          </Select>
-          <label htmlFor="devis">Devis n° : </label>
-          <Select id="devis" name="devisId" onChange={handleDevisChange}>
-            <option value="">Devis n° : </option>
-            {clientDevis.map((devis) => (
-              <option key={devis.id} value={devis.id}>
-                {devis.devis_code}
-              </option>
-            ))}
-          </Select>
-
-          <label htmlFor="task">Taches : </label>
-          <Select id="task" name="taskId" onChange={handleTaskChange}>
-            <option value="">Taches : </option>
-            {tasks.map((task) => (
-              <option
-                key={task.id}
-                value={task.id}
-                data-taskjobname={task.task_name}
-              >
-                {task.task_name}
-              </option>
-            ))}
-          </Select>
-          <label htmlFor="timeSpent">Temps : </label>
-          <Input
-            variant="outline"
-            placeholder="Temps passé"
-            type="text"
-            id="timeSpent"
-            name="timeSpent"
-            value={taskData.timeSpent}
-            onChange={handleTaskChange}
-          />
-          <button type="button" onClick={handleAddTask}>
-            Ajouter une tache
-          </button>
-        </form>
+        <Stack as={"form"} direction={"row"} width={"full"}>
+          <FormControl>
+            <FormLabel htmlFor="client">Client : </FormLabel>
+            <Select id="client" name="clientId" onChange={handleClientChange}>
+              <option value="">Client : </option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.client_name}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="devis">Devis n° : </FormLabel>
+            <Select id="devis" name="devisId" onChange={handleDevisChange}>
+              <option value="">Devis n° : </option>
+              {clientDevis.map((devis) => (
+                <option key={devis.id} value={devis.id}>
+                  {devis.devis_code}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="task">Taches : </FormLabel>
+            <Select id="task" name="taskId" onChange={handleTaskChange}>
+              <option value="">Taches : </option>
+              {tasks.map((task) => (
+                <option key={task.id} value={task.id} data-taskjobname={task.task_name}>
+                  {task.task_name}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="timeSpent">Temps : </FormLabel>
+            <Input variant="outline" placeholder="Temps passé" type="text" id="timeSpent" name="timeSpent" value={taskData.timeSpent} onChange={handleTaskChange} />
+          </FormControl>
+          <FormControl display={"flex"} alignItems={"end"} justifyContent={"center"}>
+            <Button leftIcon={<CheckIcon />} variant={"outline"} type="button" onClick={handleAddTask}>
+              Ajouter une tache
+            </Button>
+          </FormControl>
+        </Stack>
       </Stack>
     </Container>
   );

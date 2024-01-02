@@ -2,15 +2,8 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import TaskForm from "../components/TaskForm";
 import moment from "moment";
-import {
-  Button,
-  Card,
-  CardBody,
-  Container,
-  HStack,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Button, Card, CardBody, Container, HStack, Stack, Text, Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
+import { DeleteIcon } from "@chakra-ui/icons";
 
 function DevHomePage({ user }) {
   const [tasks, setTasks] = useState([]);
@@ -93,13 +86,7 @@ function DevHomePage({ user }) {
 
   const handleAddTask = () => {
     // Check if any of the required fields are empty or zero
-    if (
-      !taskData.taskId ||
-      !taskData.timeSpent ||
-      taskData.timeSpent <= 0 ||
-      !taskData.clientName ||
-      !taskData.devisCode
-    ) {
+    if (!taskData.taskId || !taskData.timeSpent || taskData.timeSpent <= 0 || !taskData.clientName || !taskData.devisCode) {
       // Set the error message
       setErrorMessage("Vous devez remplir tous les champs !");
       return;
@@ -164,9 +151,7 @@ function DevHomePage({ user }) {
           setClientDevis(response.data);
 
           // Find the selected client in the clients array and get its name
-          const selectedClient = clients.find(
-            (client) => client.id === parseInt(selectedClientId, 10)
-          );
+          const selectedClient = clients.find((client) => client.id === parseInt(selectedClientId, 10));
 
           if (selectedClient) {
             setTaskData((prevTaskData) => ({
@@ -193,9 +178,7 @@ function DevHomePage({ user }) {
     const selectedDevisId = event.target.value;
     if (selectedDevisId) {
       // Find the selected devis in the client's devis array and get its code
-      const selectedDevis = clientDevis.find(
-        (devis) => devis.id === parseInt(selectedDevisId, 10)
-      );
+      const selectedDevis = clientDevis.find((devis) => devis.id === parseInt(selectedDevisId, 10));
 
       if (selectedDevis) {
         setTaskData((prevTaskData) => ({
@@ -228,10 +211,7 @@ function DevHomePage({ user }) {
 
   const totalWorkingHoursPerDay = 7;
   const calculateTotalTimeSpent = (tasks) => {
-    return tasks.reduce(
-      (totalTime, task) => totalTime + parseFloat(task.time_spent),
-      0
-    );
+    return tasks.reduce((totalTime, task) => totalTime + parseFloat(task.time_spent), 0);
   };
 
   const totalTimeSpent = calculateTotalTimeSpent(userTask) / 60;
@@ -247,9 +227,7 @@ function DevHomePage({ user }) {
     })
       .then((response) => {
         // Mettez à jour l'état des tâches côté client pour refléter que toutes les tâches sont terminées.
-        setUserTask((tasks) =>
-          tasks.map((task) => ({ ...task, completed: true }))
-        );
+        setUserTask((tasks) => tasks.map((task) => ({ ...task, completed: true })));
       })
       .catch((error) => {
         console.error("Error marking all tasks as completed:", error);
@@ -258,62 +236,52 @@ function DevHomePage({ user }) {
   const activeUserTasks = userTask.filter((task) => task.completed === 0);
   return (
     <Container width={"full"} maxWidth={"none"} height={"80vh"}>
-      <Card height={"100%"}>
+      <Card height={"100%"} width={"full"}>
         <CardBody alignItems={"stretch"}>
-          <HStack
-            display={"flex"}
-            w={"min-content"}
-            backgroundColor={"#94ABD6"}
-            padding={"5px"}
-            borderRadius={"5px"}
-            boxShadow={"dark-lg"}
-          >
+          <HStack display={"flex"} w={"min-content"} backgroundColor={"#94ABD6"} padding={"5px"} borderRadius={"5px"} boxShadow={"dark-lg"}>
             <Text color={"white"}>Dashboard</Text>
           </HStack>
           <HStack>
-            <Stack>
+            <Stack width={"full"}>
               <h2>Taches effectuées :</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Client : </th>
-                    <th>Devis n° : </th>
-                    <th>Tache : </th>
-                    <th>Code : </th>
-                    <th>Temps : </th>
-                    <th>Action : </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeUserTasks.map((task) => (
-                    <tr key={task.id}>
-                      <td>{task.client_name}</td>
-                      <td>{task.devis_code}</td>
-                      <td>{task.task_name}</td>
-                      <td>{task.task_code}</td>
-                      <td>{formatHoursAndMinutes(task.time_spent / 60)}</td>
-                      <td>
-                        <button onClick={() => handleDeleteTask(task.id)}>
-                          Supprimer
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <TableContainer width={"full"}>
+                <Table tablelayout="auto" width={"80%"} variant="simple">
+                  <Thead width={"full"}>
+                    <Tr width={"full"}>
+                      <Th>Client : </Th>
+
+                      <Th>Devis n° : </Th>
+
+                      <Th>Tache : </Th>
+
+                      <Th>Code : </Th>
+
+                      <Th>Temps : </Th>
+
+                      <Th>Action : </Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {activeUserTasks.map((task) => (
+                      <Tr key={task.id} width={"full"}>
+                        <Td>{task.client_name}</Td>
+                        <Td>{task.devis_code}</Td>
+                        <Td>{task.task_name}</Td>
+                        <Td>{task.task_code}</Td>
+                        <Td>{formatHoursAndMinutes(task.time_spent / 60)}</Td>
+                        <Td>
+                          <Button leftIcon={<DeleteIcon />} variant={"outline"} onClick={() => handleDeleteTask(task.id)}>
+                            Supprimer
+                          </Button>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
               {errorMessage && <p className="error-message">{errorMessage}</p>}
-              <p>
-                Temps restant à effectué:{" "}
-                {timeRemaining <= 0
-                  ? "Vous avez atteint votre quota horaire pour la journée."
-                  : totalFormatted}
-              </p>
-              {timeRemaining <= 0 && (
-                <p>
-                  Total de votre journée :{" "}
-                  {formatHoursAndMinutes(totalCumulatedTime)} heures.
-                </p>
-              )}
+              <p>Temps restant à effectué: {timeRemaining <= 0 ? "Vous avez atteint votre quota horaire pour la journée." : totalFormatted}</p>
+              {timeRemaining <= 0 && <p>Total de votre journée : {formatHoursAndMinutes(totalCumulatedTime)} heures.</p>}
 
               <TaskForm
                 clients={clients}
@@ -325,9 +293,9 @@ function DevHomePage({ user }) {
                 handleTaskChange={handleTaskChange}
                 handleAddTask={handleAddTask}
               />
-              <button onClick={markTaskAsDone}>
-                Marquer toutes les tâches comme terminées
-              </button>
+              <HStack display={"flex"} justifyContent={"center"}>
+                <Button onClick={markTaskAsDone}>Marquer toutes les tâches comme terminées</Button>
+              </HStack>
             </Stack>
           </HStack>
         </CardBody>
