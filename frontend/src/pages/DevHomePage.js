@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
-import TaskForm from "../components/TaskForm";
 import moment from "moment";
-import { Button, Card, CardBody, Container, HStack, Stack, Text, Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
+import { Button, Card, CardBody, Container, HStack, Stack, Text, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Heading } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
+import TaskForm from "../components/TaskForm";
 
 function DevHomePage({ user }) {
   const [tasks, setTasks] = useState([]);
-  const [userTask, setUserTask] = useState([]); // get user task from user_task table by user_id in user_task table
+  const [userTask, setUserTask] = useState([]);
   const [taskData, setTaskData] = useState({
     taskId: "",
     taskName: "",
@@ -19,58 +19,57 @@ function DevHomePage({ user }) {
   const [clients, setClients] = useState([]);
   const [clientDevis, setClientDevis] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  // get current date
   const currentDate = moment();
   const formattedDate = currentDate.format("YYYY-MM-DD");
-
+  const [timeRemaining, setTimeRemaining] = useState({ hours: 7, minutes: 0 });
+  const [previousUserTasks, setPreviousUserTasks] = useState([]);
   useEffect(() => {
-    // Fetch tasks for the logged-in user
-    Axios.get(`http://localhost:3002/tasks?user_job_id=${user.user_job_id}`)
-      .then((response) => {
-        setTasks(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching tasks:", error);
-      });
+    fetchUserTasks();
+    fetchTasks();
+    fetchClients();
   }, [user]);
+  const uniqueDates = [...new Set(previousUserTasks.map((task) => moment(task.created_at).format("YYYY-MM-DD")))];
 
-  useEffect(() => {
-    // Fetch tasks for the logged-in user
+  const fetchUserTasks = () => {
     Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
       .then((response) => {
-        setUserTask(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching tasks:", error);
-      });
-  }, [user]);
+        const today = moment();
+        const todayDate = today.format("YYYY-MM-DD");
 
-  useEffect(() => {
+        // Separate tasks completed today and tasks completed on previous dates
+        const tasksToday = response.data.filter((task) => moment(task.created_at).isSame(today, "day"));
+        const tasksPreviousDates = response.data.filter((task) => !moment(task.created_at).isSame(today, "day"));
+
+        setUserTask(tasksToday);
+        setPreviousUserTasks(tasksPreviousDates);
+      })
+      .catch((error) => console.error("Error fetching user tasks:", error));
+  };
+
+  const fetchTasks = () => {
+    Axios.get(`http://localhost:3002/tasks?user_job_id=${user.user_job_id}`)
+      .then((response) => setTasks(response.data))
+      .catch((error) => console.error("Error fetching tasks:", error));
+  };
+
+  const fetchClients = () => {
     Axios.get("http://localhost:3002/clients")
-      .then((response) => {
-        setClients(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching clients:", error);
-      });
-  }, []);
+      .then((response) => setClients(response.data))
+      .catch((error) => console.error("Error fetching clients:", error));
+  };
 
-  // handle changes for the task id and time spent and task name
   const handleTaskChange = (event) => {
     const { name, value } = event.target;
     const selectedTask = tasks.find((task) => task.id === parseInt(value, 10));
 
-    setTaskData((prevTaskData) => {
-      return {
-        ...prevTaskData,
-        [name]: value,
-        taskName: selectedTask ? selectedTask.task_name : prevTaskData.taskName,
-        taskCode: selectedTask ? selectedTask.task_code : prevTaskData.taskCode,
-      };
-    });
+    setTaskData((prevTaskData) => ({
+      ...prevTaskData,
+      [name]: value,
+      taskName: selectedTask ? selectedTask.task_name : prevTaskData.taskName,
+      taskCode: selectedTask ? selectedTask.task_code : prevTaskData.taskCode,
+    }));
   };
 
-  // Function to parse time input like "2h45" to decimal hours
   const parseTimeInput = (input) => {
     const regex = /(\d+)h(\d+)/;
     const match = regex.exec(input);
@@ -85,20 +84,16 @@ function DevHomePage({ user }) {
   };
 
   const handleAddTask = () => {
-    // Check if any of the required fields are empty or zero
-    if (!taskData.taskId || !taskData.timeSpent || taskData.timeSpent <= 0 || !taskData.clientName || !taskData.devisCode) {
-      // Set the error message
+    const timeInHours = parseTimeInput(taskData.timeSpent);
+    const timeSpent = timeInHours * 60;
+
+    if (!taskData.taskId || !taskData.timeSpent || timeSpent <= 0 || !taskData.clientName || !taskData.devisCode) {
       setErrorMessage("Vous devez remplir tous les champs !");
       return;
     }
 
-    // Reset the error message if validation passes
     setErrorMessage("");
-    // Parse the time input using the parseTimeInput function
-    // convert time into minutes
 
-    const timeSpent = parseTimeInput(taskData.timeSpent) * 60;
-    // Post the time spent on the selected task to your server
     Axios.post("http://localhost:3002/user_task", {
       user_id: user.id,
       user_email: user.email,
@@ -111,46 +106,56 @@ function DevHomePage({ user }) {
       date: formattedDate,
     })
       .then((response) => {
-        // get user tasks by user_id in user_task table
-        Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
-          .then((response) => {
-            setUserTask(response.data);
-          })
-          .catch((error) => {
-            console.error("Error fetching tasks:", error);
-          });
+        fetchUserTasks();
+
+        setTimeRemaining((prevTimeRemaining) => {
+          const totalMinutes = prevTimeRemaining.hours * 60 + prevTimeRemaining.minutes;
+          const updatedTotalMinutes = totalMinutes - timeSpent;
+
+          const updatedHours = Math.floor(updatedTotalMinutes / 60);
+          const updatedMinutes = updatedTotalMinutes % 60;
+
+          return {
+            hours: updatedHours,
+            minutes: updatedMinutes,
+          };
+        });
       })
-      .catch((error) => {
-        console.error("Error posting time spent:", error);
-      });
+      .catch((error) => console.error("Error posting time spent:", error));
   };
 
   const handleDeleteTask = (taskUniqueId) => {
     Axios.delete(`http://localhost:3002/user_task/${taskUniqueId}`)
       .then((response) => {
-        // After deletion, update the user's task list by making a request to the server again
-        Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
-          .then((response) => {
-            setUserTask(response.data);
-          })
-          .catch((error) => {
-            console.error("Error fetching tasks:", error);
-          });
+        fetchUserTasks();
+
+        const deletedTask = userTask.find((task) => task.id === taskUniqueId);
+        const deletedTimeSpent = deletedTask ? deletedTask.time_spent : 0;
+
+        setTimeRemaining((prevTimeRemaining) => {
+          const updatedHours = prevTimeRemaining.hours + Math.trunc(deletedTimeSpent / 60);
+          const updatedMinutes = prevTimeRemaining.minutes + Math.round(deletedTimeSpent % 60);
+
+          const adjustedHours = updatedMinutes >= 60 ? updatedHours + 1 : updatedHours;
+          const adjustedMinutes = updatedMinutes >= 60 ? updatedMinutes - 60 : updatedMinutes;
+
+          return {
+            hours: adjustedHours,
+            minutes: adjustedMinutes,
+          };
+        });
       })
-      .catch((error) => {
-        console.error("Error deleting the task:", error);
-      });
+      .catch((error) => console.error("Error deleting the task:", error));
   };
 
   const handleClientChange = (event) => {
     const selectedClientId = event.target.value;
+
     if (selectedClientId) {
-      // Use the selected client's ID to fetch the related devis from the server
       Axios.get(`http://localhost:3002/devis?client_id=${selectedClientId}`)
         .then((response) => {
           setClientDevis(response.data);
 
-          // Find the selected client in the clients array and get its name
           const selectedClient = clients.find((client) => client.id === parseInt(selectedClientId, 10));
 
           if (selectedClient) {
@@ -160,11 +165,8 @@ function DevHomePage({ user }) {
             }));
           }
         })
-        .catch((error) => {
-          console.error("Error fetching client's devis:", error);
-        });
+        .catch((error) => console.error("Error fetching client's devis:", error));
     } else {
-      // Reset the list of devis when "Select a client" is chosen
       setClientDevis([]);
       setTaskData((prevTaskData) => ({
         ...prevTaskData,
@@ -176,8 +178,8 @@ function DevHomePage({ user }) {
 
   const handleDevisChange = (event) => {
     const selectedDevisId = event.target.value;
+
     if (selectedDevisId) {
-      // Find the selected devis in the client's devis array and get its code
       const selectedDevis = clientDevis.find((devis) => devis.id === parseInt(selectedDevisId, 10));
 
       if (selectedDevis) {
@@ -187,7 +189,6 @@ function DevHomePage({ user }) {
         }));
       }
     } else {
-      // Clear the devis ID and code when no devis is selected
       setTaskData((prevTaskData) => ({
         ...prevTaskData,
         devisId: "",
@@ -196,27 +197,26 @@ function DevHomePage({ user }) {
     }
   };
 
-  function formatHoursAndMinutes(time) {
-    const hours = Math.floor(time);
-    const minutes = Math.round((time - hours) * 60);
-
-    if (hours === 0) {
-      return `${minutes} minutes`;
-    } else if (minutes === 0) {
-      return `${hours} heures`;
-    } else {
-      return `${hours} heures et ${minutes} minutes`;
+  const formatHoursAndMinutes = (hours, minutes) => {
+    if (typeof hours === "object") {
+      hours = hours.hours;
+      minutes = hours.minutes;
     }
-  }
 
-  const totalWorkingHoursPerDay = 7;
+    if (hours === 0 && minutes === 0) {
+      return "0 heure";
+    } else if (hours === 0) {
+      return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
+    } else if (minutes === 0) {
+      return `${hours} heure${hours !== 1 ? "s" : ""}`;
+    } else {
+      return `${hours} heure${hours !== 1 ? "s" : ""} et ${minutes} minute${minutes !== 1 ? "s" : ""}`;
+    }
+  };
+
   const calculateTotalTimeSpent = (tasks) => {
     return tasks.reduce((totalTime, task) => totalTime + parseFloat(task.time_spent), 0);
   };
-
-  const totalTimeSpent = calculateTotalTimeSpent(userTask) / 60;
-  const timeRemaining = totalWorkingHoursPerDay - totalTimeSpent;
-  const totalFormatted = formatHoursAndMinutes(timeRemaining);
 
   const totalCumulatedTime = calculateTotalTimeSpent(userTask) / 60;
 
@@ -226,73 +226,151 @@ function DevHomePage({ user }) {
       date: formattedDate,
     })
       .then((response) => {
-        // Mettez à jour l'état des tâches côté client pour refléter que toutes les tâches sont terminées.
         setUserTask((tasks) => tasks.map((task) => ({ ...task, completed: true })));
+        setTimeRemaining({ hours: 7, minutes: 0 });
       })
-      .catch((error) => {
-        console.error("Error marking all tasks as completed:", error);
-      });
+      .catch((error) => console.error("Error marking all tasks as completed:", error));
   };
+
+  const handleMarkAsCompleted = (taskId) => {
+    Axios.post("http://localhost:3002/mark_task_completed", {
+      task_id: taskId,
+    })
+      .then((response) => {
+        fetchUserTasks();
+      })
+      .catch((error) => console.error("Error marking task as completed:", error));
+  };
+
   const activeUserTasks = userTask.filter((task) => task.completed === 0);
+
   return (
     <Container width={"full"} maxWidth={"none"} height={"80vh"}>
       <Card height={"100%"} width={"full"}>
         <CardBody alignItems={"stretch"}>
-          <HStack display={"flex"} w={"min-content"} backgroundColor={"#94ABD6"} padding={"5px"} borderRadius={"5px"} boxShadow={"dark-lg"}>
-            <Text color={"white"}>Dashboard</Text>
+          <HStack display={"flex"} w={"min-content"} padding={"5px"} borderRadius={"5px"}>
+            <Heading color={"#1a13a8"}>Dashboard</Heading>
           </HStack>
           <HStack>
             <Stack width={"full"}>
-              <h2>Taches effectuées :</h2>
-              <TableContainer width={"full"}>
-                <Table tablelayout="auto" width={"80%"} variant="simple">
-                  <Thead width={"full"}>
-                    <Tr width={"full"}>
-                      <Th>Client : </Th>
+              {uniqueDates
+                .filter((date) => previousUserTasks.some((task) => moment(task.created_at).isSame(date, "day") && !task.completed))
+                .map((date) => (
+                  <Card backgroundColor={"#1e16bf"}>
+                    <div key={date}>
+                      <h2>Tâches créées le {moment(date).format("DD/MM/YYYY")} :</h2>
 
-                      <Th>Devis n° : </Th>
+                      <TableContainer width={"full"}>
+                        <Table tablelayout="auto" width={"80%"} variant="simple">
+                          <Thead width={"full"}>
+                            <Tr width={"full"}>
+                              <Th>Client : </Th>
+                              <Th>Devis n° : </Th>
+                              <Th>Tâche : </Th>
+                              <Th>Code : </Th>
+                              <Th>Temps : </Th>
+                              <Th>Action : </Th>
+                            </Tr>
+                          </Thead>
+                          <Tbody>
+                            {previousUserTasks
+                              .filter((task) => moment(task.created_at).isSame(date, "day") && !task.completed)
+                              .map((task) => (
+                                <Tr key={task.id} width={"full"}>
+                                  <Td>{task.client_name}</Td>
+                                  <Td>{task.devis_code}</Td>
+                                  <Td>{task.task_name}</Td>
+                                  <Td>{task.task_code}</Td>
+                                  <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
+                                  <Td display={"flex"} justifyContent={"space-between"}>
+                                    <Button
+                                      _hover={({ color: "black" }, { backgroundColor: "red.500" })}
+                                      backgroundColor={"#D60620"}
+                                      color={"white"}
+                                      leftIcon={<DeleteIcon />}
+                                      variant={"outline"}
+                                      onClick={() => handleDeleteTask(task.id)}
+                                    >
+                                      Supprimer
+                                    </Button>
+                                    <Button backgroundColor={"lightgoldenrodyellow"} onClick={() => handleMarkAsCompleted(task.id)}>
+                                      Terminer cette tâche
+                                    </Button>
+                                  </Td>
+                                </Tr>
+                              ))}
+                          </Tbody>
+                        </Table>
+                      </TableContainer>
+                    </div>
+                  </Card>
+                ))}
 
-                      <Th>Tache : </Th>
-
-                      <Th>Code : </Th>
-
-                      <Th>Temps : </Th>
-
-                      <Th>Action : </Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {activeUserTasks.map((task) => (
-                      <Tr key={task.id} width={"full"}>
-                        <Td>{task.client_name}</Td>
-                        <Td>{task.devis_code}</Td>
-                        <Td>{task.task_name}</Td>
-                        <Td>{task.task_code}</Td>
-                        <Td>{formatHoursAndMinutes(task.time_spent / 60)}</Td>
-                        <Td>
-                          <Button leftIcon={<DeleteIcon />} variant={"outline"} onClick={() => handleDeleteTask(task.id)}>
-                            Supprimer
-                          </Button>
-                        </Td>
+              <Card backgroundColor={"white"}>
+                <h2>Tâches effectuées :</h2>
+                {/* La table existante pour les tâches effectuées */}
+                <TableContainer width={"full"}>
+                  <Table tablelayout="auto" width={"80%"} variant="simple">
+                    <Thead width={"full"}>
+                      <Tr width={"full"}>
+                        <Th>Client : </Th>
+                        <Th>Devis n° : </Th>
+                        <Th>Tâche : </Th>
+                        <Th>Code : </Th>
+                        <Th>Temps : </Th>
+                        <Th>Action : </Th>
                       </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
-              <p>Temps restant à effectué: {timeRemaining <= 0 ? "Vous avez atteint votre quota horaire pour la journée." : totalFormatted}</p>
-              {timeRemaining <= 0 && <p>Total de votre journée : {formatHoursAndMinutes(totalCumulatedTime)} heures.</p>}
+                    </Thead>
+                    <Tbody>
+                      {activeUserTasks.map((task) => (
+                        <Tr key={task.id} width={"full"}>
+                          <Td>{task.client_name}</Td>
+                          <Td>{task.devis_code}</Td>
+                          <Td>{task.task_name}</Td>
+                          <Td>{task.task_code}</Td>
+                          <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
+                          <Td>
+                            <Button
+                              _hover={({ color: "black" }, { backgroundColor: "red.500" })}
+                              backgroundColor={"#D60620"}
+                              color={"white"}
+                              leftIcon={<DeleteIcon />}
+                              variant={"outline"}
+                              onClick={() => handleDeleteTask(task.id)}
+                            >
+                              Supprimer
+                            </Button>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
 
-              <TaskForm
-                clients={clients}
-                clientDevis={clientDevis}
-                tasks={tasks}
-                taskData={taskData}
-                handleClientChange={handleClientChange}
-                handleDevisChange={handleDevisChange}
-                handleTaskChange={handleTaskChange}
-                handleAddTask={handleAddTask}
-              />
+                {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+                <p>
+                  Temps restant à effectuer:{" "}
+                  {timeRemaining.hours === 0 && timeRemaining.minutes === 0
+                    ? "Vous avez atteint votre quota horaire pour la journée."
+                    : formatHoursAndMinutes(timeRemaining.hours, timeRemaining.minutes)}
+                </p>
+
+                {timeRemaining.hours === 0 && timeRemaining.minutes === 0 && (
+                  <p>Total de votre journée : {formatHoursAndMinutes(Math.floor(totalCumulatedTime), Math.round((totalCumulatedTime % 1) * 60))}.</p>
+                )}
+
+                <TaskForm
+                  clients={clients}
+                  clientDevis={clientDevis}
+                  tasks={tasks}
+                  taskData={taskData}
+                  handleClientChange={handleClientChange}
+                  handleDevisChange={handleDevisChange}
+                  handleTaskChange={handleTaskChange}
+                  handleAddTask={handleAddTask}
+                />
+              </Card>
               <HStack display={"flex"} justifyContent={"center"}>
                 <Button onClick={markTaskAsDone}>Marquer toutes les tâches comme terminées</Button>
               </HStack>

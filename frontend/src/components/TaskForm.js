@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Card, CardBody, Container, HStack, Stack, Text, Select, Input, FormLabel, FormControl } from "@chakra-ui/react";
+import { Button, Container, Stack, Select, Input, FormLabel, FormControl } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
 function TaskForm({ clients, clientDevis, tasks, taskData, handleClientChange, handleDevisChange, handleTaskChange, handleAddTask }) {
   return (
@@ -45,7 +45,7 @@ function TaskForm({ clients, clientDevis, tasks, taskData, handleClientChange, h
             <Input variant="outline" placeholder="Temps passé" type="text" id="timeSpent" name="timeSpent" value={taskData.timeSpent} onChange={handleTaskChange} />
           </FormControl>
           <FormControl display={"flex"} alignItems={"end"} justifyContent={"center"}>
-            <Button leftIcon={<CheckIcon />} variant={"outline"} type="button" onClick={handleAddTask}>
+            <Button backgroundColor={"lightgreen"} leftIcon={<CheckIcon />} variant={"outline"} type="button" onClick={handleAddTask}>
               Ajouter une tache
             </Button>
           </FormControl>

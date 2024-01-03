@@ -24,7 +24,7 @@ function AdminHomePage() {
   useEffect(() => {
     // Fetch tasks for the selected user
     if (selectedUser) {
-      Axios.get(`http://localhost:3002/get/user_task?user_id=${selectedUser}`)
+      Axios.get(`http://localhost:3002/admin/get/user_task?user_id=${selectedUser}`)
         .then((response) => {
           const tasksWithDate = response.data.map((task) => ({
             ...task,

@@ -4,19 +4,7 @@ import Axios from "axios";
 import { withRouter } from "react-router";
 import bcrypt from "bcryptjs";
 import Cookies from "js-cookie";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  FormControl,
-  FormLabel,
-  Heading,
-  HStack,
-  Input,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Checkbox, Container, FormControl, FormLabel, Heading, HStack, Input, Stack, Text } from "@chakra-ui/react";
 import { Logo } from "../components/Logo";
 import { PasswordField } from "../components/PasswordField";
 // // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
@@ -58,12 +46,10 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
           setError("Email ou mot de passe incorrect ou vide");
         } else {
           const user = response.data[0]; // Assuming you get one user matching the email
-          console.log(user);
           // Now, use the retrieved user's salt to hash the entered password
           const hashedPassword = bcrypt.hashSync(enteredPassword, user.salt);
           if (hashedPassword === user.password) {
             setError(null); // Clear error message
-            console.log("Vous êtes connecté");
             history.push(getDashboardRoute(user.user_job_id));
             // Update the user state in the App component
             setUser(user);
