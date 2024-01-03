@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import { useHistory } from "react-router-dom";
-import "./App.css";
+
 import PrivateRoute from "./pages/private/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
 import DevHomePage from "./pages/DevHomePage";

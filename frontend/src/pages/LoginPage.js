@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import "../App.css";
+
 import Axios from "axios";
 import { withRouter } from "react-router";
 import bcrypt from "bcryptjs";

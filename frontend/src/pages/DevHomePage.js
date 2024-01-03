@@ -245,139 +245,141 @@ function DevHomePage({ user }) {
   const activeUserTasks = userTask.filter((task) => task.completed === 0);
 
   return (
-    <Container width={"full"} maxWidth={"none"} height={"80vh"}>
-      <Card height={"100%"} width={"full"}>
-        <CardBody alignItems={"stretch"}>
-          <HStack display={"flex"} w={"min-content"} padding={"5px"} borderRadius={"5px"}>
-            <Heading color={"#1a13a8"}>Dashboard</Heading>
-          </HStack>
-          <HStack>
-            <Stack width={"full"}>
-              {uniqueDates
-                .filter((date) => previousUserTasks.some((task) => moment(task.created_at).isSame(date, "day") && !task.completed))
-                .map((date) => (
-                  <Card backgroundColor={"#1e16bf"}>
-                    <div key={date}>
-                      <h2>Tâches créées le {moment(date).format("DD/MM/YYYY")} :</h2>
+    <Container width={"full"} maxWidth={"none"} height={"80vh"} p={"20px"}>
+      <Container height={"100%"} width={"full"} maxWidth={"unset"}>
+        <HStack display={"flex"} w={"min-content"} padding={"5px"} borderRadius={"5px"}>
+          <Heading color={"#1a13a8"}>Dashboard</Heading>
+        </HStack>
+        <HStack>
+          <Stack width={"full"}>
+            {uniqueDates
+              .filter((date) => previousUserTasks.some((task) => moment(task.created_at).isSame(date, "day") && !task.completed))
+              .map((date) => (
+                <Card backgroundColor={"#1e16bf"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                  <Container key={date}>
+                    <Heading as={"h3"} size={"lg"}>
+                      Tâches créées le {moment(date).format("DD/MM/YYYY")} :
+                    </Heading>
 
-                      <TableContainer width={"full"}>
-                        <Table tablelayout="auto" width={"80%"} variant="simple">
-                          <Thead width={"full"}>
-                            <Tr width={"full"}>
-                              <Th>Client : </Th>
-                              <Th>Devis n° : </Th>
-                              <Th>Tâche : </Th>
-                              <Th>Code : </Th>
-                              <Th>Temps : </Th>
-                              <Th>Action : </Th>
-                            </Tr>
-                          </Thead>
-                          <Tbody>
-                            {previousUserTasks
-                              .filter((task) => moment(task.created_at).isSame(date, "day") && !task.completed)
-                              .map((task) => (
-                                <Tr key={task.id} width={"full"}>
-                                  <Td>{task.client_name}</Td>
-                                  <Td>{task.devis_code}</Td>
-                                  <Td>{task.task_name}</Td>
-                                  <Td>{task.task_code}</Td>
-                                  <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
-                                  <Td display={"flex"} justifyContent={"space-between"}>
-                                    <Button
-                                      _hover={({ color: "black" }, { backgroundColor: "red.500" })}
-                                      backgroundColor={"#D60620"}
-                                      color={"white"}
-                                      leftIcon={<DeleteIcon />}
-                                      variant={"outline"}
-                                      onClick={() => handleDeleteTask(task.id)}
-                                    >
-                                      Supprimer
-                                    </Button>
-                                    <Button backgroundColor={"lightgoldenrodyellow"} onClick={() => handleMarkAsCompleted(task.id)}>
-                                      Terminer cette tâche
-                                    </Button>
-                                  </Td>
-                                </Tr>
-                              ))}
-                          </Tbody>
-                        </Table>
-                      </TableContainer>
-                    </div>
-                  </Card>
-                ))}
+                    <TableContainer width={"full"}>
+                      <Table tablelayout="auto" width={"80%"} variant="simple">
+                        <Thead width={"full"}>
+                          <Tr width={"full"}>
+                            <Th>Client : </Th>
+                            <Th>Devis n° : </Th>
+                            <Th>Tâche : </Th>
+                            <Th>Code : </Th>
+                            <Th>Temps : </Th>
+                            <Th>Action : </Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          {previousUserTasks
+                            .filter((task) => moment(task.created_at).isSame(date, "day") && !task.completed)
+                            .map((task) => (
+                              <Tr key={task.id} width={"full"}>
+                                <Td>{task.client_name}</Td>
+                                <Td>{task.devis_code}</Td>
+                                <Td>{task.task_name}</Td>
+                                <Td>{task.task_code}</Td>
+                                <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
+                                <Td display={"flex"} justifyContent={"space-between"}>
+                                  <Button
+                                    _hover={({ color: "black" }, { backgroundColor: "red.500" })}
+                                    backgroundColor={"#D60620"}
+                                    color={"white"}
+                                    leftIcon={<DeleteIcon />}
+                                    variant={"outline"}
+                                    onClick={() => handleDeleteTask(task.id)}
+                                  >
+                                    Supprimer
+                                  </Button>
+                                  <Button backgroundColor={"lightgoldenrodyellow"} onClick={() => handleMarkAsCompleted(task.id)}>
+                                    Terminer cette tâche
+                                  </Button>
+                                </Td>
+                              </Tr>
+                            ))}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  </Container>
+                </Card>
+              ))}
 
-              <Card backgroundColor={"white"}>
-                <h2>Tâches effectuées :</h2>
-                {/* La table existante pour les tâches effectuées */}
-                <TableContainer width={"full"}>
-                  <Table tablelayout="auto" width={"80%"} variant="simple">
-                    <Thead width={"full"}>
-                      <Tr width={"full"}>
-                        <Th>Client : </Th>
-                        <Th>Devis n° : </Th>
-                        <Th>Tâche : </Th>
-                        <Th>Code : </Th>
-                        <Th>Temps : </Th>
-                        <Th>Action : </Th>
+            <Card backgroundColor={"white"} display={"flex"} alignItems={"center"}>
+              <Heading as={"h3"} size={"md"} p={"15px"}>
+                Tâches effectuées :
+              </Heading>
+              {/* La table existante pour les tâches effectuées */}
+              <TableContainer width={"full"} justifyContent={"center"} display={"flex"}>
+                <Table tablelayout="auto" width={"80%"} variant="simple">
+                  <Thead width={"full"}>
+                    <Tr width={"full"}>
+                      <Th>Client : </Th>
+                      <Th>Devis n° : </Th>
+                      <Th>Tâche : </Th>
+                      <Th>Code : </Th>
+                      <Th>Temps : </Th>
+                      <Th>Action : </Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {activeUserTasks.map((task) => (
+                      <Tr key={task.id} width={"full"}>
+                        <Td>{task.client_name}</Td>
+                        <Td>{task.devis_code}</Td>
+                        <Td>{task.task_name}</Td>
+                        <Td>{task.task_code}</Td>
+                        <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
+                        <Td>
+                          <Button
+                            _hover={({ color: "black" }, { backgroundColor: "red.500" })}
+                            backgroundColor={"#D60620"}
+                            color={"white"}
+                            leftIcon={<DeleteIcon />}
+                            variant={"outline"}
+                            onClick={() => handleDeleteTask(task.id)}
+                          >
+                            Supprimer
+                          </Button>
+                        </Td>
                       </Tr>
-                    </Thead>
-                    <Tbody>
-                      {activeUserTasks.map((task) => (
-                        <Tr key={task.id} width={"full"}>
-                          <Td>{task.client_name}</Td>
-                          <Td>{task.devis_code}</Td>
-                          <Td>{task.task_name}</Td>
-                          <Td>{task.task_code}</Td>
-                          <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
-                          <Td>
-                            <Button
-                              _hover={({ color: "black" }, { backgroundColor: "red.500" })}
-                              backgroundColor={"#D60620"}
-                              color={"white"}
-                              leftIcon={<DeleteIcon />}
-                              variant={"outline"}
-                              onClick={() => handleDeleteTask(task.id)}
-                            >
-                              Supprimer
-                            </Button>
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
 
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
+              {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-                <p>
-                  Temps restant à effectuer:{" "}
-                  {timeRemaining.hours === 0 && timeRemaining.minutes === 0
-                    ? "Vous avez atteint votre quota horaire pour la journée."
-                    : formatHoursAndMinutes(timeRemaining.hours, timeRemaining.minutes)}
-                </p>
+              <p>
+                Temps restant à effectuer:{" "}
+                {timeRemaining.hours === 0 && timeRemaining.minutes === 0
+                  ? "Vous avez atteint votre quota horaire pour la journée."
+                  : formatHoursAndMinutes(timeRemaining.hours, timeRemaining.minutes)}
+              </p>
 
-                {timeRemaining.hours === 0 && timeRemaining.minutes === 0 && (
-                  <p>Total de votre journée : {formatHoursAndMinutes(Math.floor(totalCumulatedTime), Math.round((totalCumulatedTime % 1) * 60))}.</p>
-                )}
+              {timeRemaining.hours === 0 && timeRemaining.minutes === 0 && (
+                <p>Total de votre journée : {formatHoursAndMinutes(Math.floor(totalCumulatedTime), Math.round((totalCumulatedTime % 1) * 60))}.</p>
+              )}
 
-                <TaskForm
-                  clients={clients}
-                  clientDevis={clientDevis}
-                  tasks={tasks}
-                  taskData={taskData}
-                  handleClientChange={handleClientChange}
-                  handleDevisChange={handleDevisChange}
-                  handleTaskChange={handleTaskChange}
-                  handleAddTask={handleAddTask}
-                />
-              </Card>
-              <HStack display={"flex"} justifyContent={"center"}>
-                <Button onClick={markTaskAsDone}>Marquer toutes les tâches comme terminées</Button>
-              </HStack>
-            </Stack>
-          </HStack>
-        </CardBody>
-      </Card>
+              <TaskForm
+                clients={clients}
+                clientDevis={clientDevis}
+                tasks={tasks}
+                taskData={taskData}
+                handleClientChange={handleClientChange}
+                handleDevisChange={handleDevisChange}
+                handleTaskChange={handleTaskChange}
+                handleAddTask={handleAddTask}
+              />
+            </Card>
+            <HStack display={"flex"} justifyContent={"center"}>
+              <Button onClick={markTaskAsDone}>Marquer toutes les tâches comme terminées</Button>
+            </HStack>
+          </Stack>
+        </HStack>
+      </Container>
     </Container>
   );
 }
