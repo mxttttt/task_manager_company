@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import { format } from "date-fns";
+import {
+  Button,
+  Card,
+  CardBody,
+  Container,
+  HStack,
+  Stack,
+  Text,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Heading,
+  List,
+  Wrap,
+  Avatar,
+  Input,
+  Select,
+} from "@chakra-ui/react";
 
 function AdminHomePage() {
   const [selectedUser, setSelectedUser] = useState("");
@@ -77,67 +99,116 @@ function AdminHomePage() {
   }, {});
 
   return (
-    <div>
-      <h1>Admin Page</h1>
-      <label htmlFor="user">Sélectionner un utilisateur : </label>
-      <select id="user" onChange={(e) => setSelectedUser(e.target.value)}>
-        <option value="">Sélectionner un utilisateur</option>
-        {users.map((user) => (
-          <option key={user.id} value={user.id}>
-            {user.email}
-          </option>
-        ))}
-      </select>
-
-      {selectedUser && (
-        <div>
-          <div>
-            <label htmlFor="searchClient">Rechercher un client : </label>
-            <input type="text" id="searchClient" value={searchClientName} onChange={(e) => setSearchClientName(e.target.value)} />
-          </div>
-          <div>
-            <label htmlFor="filterTaskCode">Filter by Task Code:</label>
-            <input type="text" id="filterTaskCode" value={filterTaskCode} onChange={(e) => setFilterTaskCode(e.target.value)} />
-            <button onClick={filterAndCalculateTotal}>Filter & Calculate Total</button>
-          </div>
-          <h2>Tâches effectuées:</h2>
-          {Object.keys(groupedTasks).map((date) => (
-            <div key={date}>
-              <h3>{date}</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nom du client</th>
-                    <th>Devis N°</th>
-                    <th>Nom de la tâche</th>
-                    <th>Code de la tâche</th>
-                    <th>Temps passé (heures)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {groupedTasks[date].map((task) => (
-                    <tr key={task.id}>
-                      <td>{task.client_name}</td>
-                      <td>{task.devis_code}</td>
-                      <td>{task.task_name}</td>
-                      <td>{task.task_code}</td>
-                      <td>{formatHoursAndMinutes(task.time_spent / 60)}</td>
-                    </tr>
+    <Container width={"full"} maxWidth={"none"} height={"80vh"} p={"20px"}>
+      <Container height={"100%"} width={"full"} maxWidth={"unset"}>
+        <HStack display={"flex"} w={"min-content"} padding={"5px"} borderRadius={"5px"} direction={"row"}>
+          <Heading color={"#1a13a8"}>
+            Dashboard <Text fontSize={"md"}>Administrateur</Text>
+          </Heading>
+        </HStack>
+        <Stack direction={"row"} spacing={5} mt={"20px"} height={"100%"}>
+          <Card direction={"column"} width={"20%"} height={"100%"} borderRadius={"5px"}>
+            <CardBody>
+              <Text fontSize={"md"} fontWeight={"bold"}>
+                Choisissiez un utilisateur
+              </Text>
+              {/* list user with List component */}
+              <Stack direction={"column"}>
+                <List spacing={3} mt={6}>
+                  {users.map((user) => (
+                    <Wrap key={user.id} spacing={3} mt={6}>
+                      <Button
+                        display={"flex"}
+                        justifyContent={"left"}
+                        width={"60%"}
+                        colorScheme={"transparent"}
+                        color={"black"}
+                        _hover={{ outline: " solid 1px" }}
+                        onClick={() => setSelectedUser(user.id)}
+                        size={"sm"}
+                        borderRadius={"5px"}
+                      >
+                        <Avatar size={"xs"} name={user.prénom} src={user.avatar} mr={2} />
+                        {user.prénom}
+                      </Button>
+                    </Wrap>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-        </div>
-      )}
-      {filterTaskCode && (
-        <div>
-          <p>
-            Total Hours Spent on Task Code "{filterTaskCode}": {totalHours}
-          </p>
-        </div>
-      )}
-    </div>
+                </List>
+              </Stack>
+            </CardBody>
+          </Card>
+          <Card direction={"column"} width={"60%"} height={"100%"} borderRadius={"5px"}>
+            <CardBody>
+              <Text fontSize={"md"} fontWeight={"bold"}>
+                Tâches effectuées
+              </Text>
+              <TableContainer>
+                <Table variant={"simple"} mt={6}>
+                  <Thead>
+                    <Tr>
+                      <Th>Nom du client</Th>
+                      <Th>Devis N°</Th>
+                      <Th>Nom de la tâche</Th>
+                      <Th>Code de la tâche</Th>
+                      <Th>Temps passé (heures)</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {filteredUserTasks.map((task) => (
+                      <Tr key={task.id}>
+                        <Td>{task.client_name}</Td>
+                        <Td>{task.devis_code}</Td>
+                        <Td>{task.task_name}</Td>
+                        <Td>{task.task_code}</Td>
+                        <Td>{formatHoursAndMinutes(task.time_spent / 60)}</Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
+            </CardBody>
+          </Card>
+          {/* Filter column by task code or client name */}
+          <Card direction={"column"} width={"20%"} height={"100%"} borderRadius={"5px"}>
+            <CardBody>
+              <Text fontSize={"md"} fontWeight={"bold"}>
+                Filter
+              </Text>
+              <Stack direction={"column"}>
+                <List spacing={3} mt={6}>
+                  <Wrap spacing={3} mt={6}>
+                    <label htmlFor="searchClient">Rechercher un client : </label>
+                    <Input type="text" id="searchClient" value={searchClientName} onChange={(e) => setSearchClientName(e.target.value)} />
+                    <Select placeholder="Filter by Task Code" value={filterTaskCode} onChange={(e) => setFilterTaskCode(e.target.value)}>
+                      {/* get the all the task from the db */}
+                      {userTasks.map((task) => (
+                        <option key={task.id} value={task.task_code}>
+                          {task.task_code}
+                        </option>
+                      ))}
+                    </Select>
+
+                    <Button
+                      display={"flex"}
+                      justifyContent={"left"}
+                      width={"60%"}
+                      colorScheme={"transparent"}
+                      color={"black"}
+                      _hover={{ outline: " solid 1px" }}
+                      onClick={filterAndCalculateTotal}
+                      size={"sm"}
+                      borderRadius={"5px"}
+                    >
+                      Filter & Calculate Total
+                    </Button>
+                  </Wrap>
+                </List>
+              </Stack>
+            </CardBody>
+          </Card>
+        </Stack>
+      </Container>
+    </Container>
   );
 }
 
