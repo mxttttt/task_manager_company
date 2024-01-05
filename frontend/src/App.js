@@ -17,7 +17,7 @@ import { Avatar, Button, Card, CardBody, HStack, Stack, Text, List, ListItem } f
 import { Logo } from "./components/Logo";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null);
   const [loggedIn, setLoggedIn] = useState(Cookies.get("loggedIn") === "true");
   const history = useHistory();
 

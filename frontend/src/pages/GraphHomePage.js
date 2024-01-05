@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Axios from "axios";
+// import axios from "axios";
+import axios from "../axios/axios";
 import TaskForm from "../components/TaskForm";
 function GrapHomePage({ user }) {
   const [tasks, setTasks] = useState([]);
@@ -18,7 +19,8 @@ function GrapHomePage({ user }) {
 
   useEffect(() => {
     // Fetch tasks for the logged-in user
-    Axios.get(`http://localhost:3002/tasks?user_job_id=${user.user_job_id}`)
+    axios
+      .get(`/tasks?user_job_id=${user.user_job_id}`)
       .then((response) => {
         setTasks(response.data);
       })
@@ -29,7 +31,8 @@ function GrapHomePage({ user }) {
 
   useEffect(() => {
     // Fetch tasks for the logged-in user
-    Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
+    axios
+      .get(`/get/user_task?user_id=${user.id}`)
       .then((response) => {
         setUserTask(response.data);
       })
@@ -39,7 +42,8 @@ function GrapHomePage({ user }) {
   }, [user]);
 
   useEffect(() => {
-    Axios.get("http://localhost:3002/clients")
+    axios
+      .get("/clients")
       .then((response) => {
         setClients(response.data);
       })
@@ -74,19 +78,21 @@ function GrapHomePage({ user }) {
     setErrorMessage("");
 
     // Post the time spent on the selected task to your server
-    Axios.post("http://localhost:3002/user_task", {
-      user_id: user.id,
-      user_email: user.email,
-      task_id: taskData.taskId,
-      task_name: taskData.taskName,
-      task_code: taskData.taskCode,
-      time_spent: taskData.timeSpent,
-      client: taskData.clientName,
-      devis: taskData.devisCode,
-    })
+    axios
+      .post("/user_task", {
+        user_id: user.id,
+        user_email: user.email,
+        task_id: taskData.taskId,
+        task_name: taskData.taskName,
+        task_code: taskData.taskCode,
+        time_spent: taskData.timeSpent,
+        client: taskData.clientName,
+        devis: taskData.devisCode,
+      })
       .then((response) => {
         //get user tasks by is user_job_id in user_task table
-        Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
+        axios
+          .get(`/get/user_task?user_id=${user.id}`)
           .then((response) => {
             setUserTask(response.data);
           })
@@ -100,11 +106,13 @@ function GrapHomePage({ user }) {
   };
 
   const handleDeleteTask = (taskUniqueId) => {
-    Axios.delete(`http://localhost:3002/user_task/${taskUniqueId}`)
+    axios
+      .delete(`/user_task/${taskUniqueId}`)
       .then((response) => {
         // Après la suppression, mettez à jour la liste des tâches de l'utilisateur
         // en refaisant une requête au serveur
-        Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
+        axios
+          .get(`/get/user_task?user_id=${user.id}`)
           .then((response) => {
             setUserTask(response.data);
           })
@@ -121,7 +129,8 @@ function GrapHomePage({ user }) {
     const selectedClientId = event.target.value;
     if (selectedClientId) {
       // Utilize the ID of the client selected to fetch the related devis from the server
-      Axios.get(`http://localhost:3002/devis?client_id=${selectedClientId}`)
+      axios
+        .get(`/devis?client_id=${selectedClientId}`)
         .then((response) => {
           setClientDevis(response.data);
 
@@ -150,6 +159,8 @@ function GrapHomePage({ user }) {
       }));
     }
   };
+
+  //TODO : a modifier afficher le nom du projet du client selectionné
 
   const handleDevisChange = (event) => {
     const selectedDevisId = event.target.value;

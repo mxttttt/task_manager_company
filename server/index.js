@@ -16,6 +16,26 @@ app.get("/users", (req, res) => {
   });
 });
 
+//Route to get all projects
+app.get("/projects", (req, res) => {
+  db.query(
+    "SELECT projet.*, user_task.client_name, SUM(user_task.time_spent) as time_spent FROM `projet` INNER JOIN user_task ON projet.id = user_task.id_projet  GROUP BY projet.id;",
+    (err, result) => {
+      if (err) console.log(err);
+      res.send(result);
+    }
+  );
+});
+
+//Route to get project by is id
+app.get("/projects/:id", (req, res) => {
+  const id = req.params.id;
+  db.query("SELECT * FROM projet WHERE id = ?", [id], (err, result) => {
+    if (err) console.log(err);
+    res.send(result[0]);
+  });
+});
+
 //Route to get on users from is email
 app.get("/user", (req, res) => {
   const email = req.query.email;
@@ -27,6 +47,15 @@ app.get("/user", (req, res) => {
       res.send(result);
     }
   );
+});
+
+//Route to get user by is id
+app.get("/users/:id", (req, res) => {
+  const id = req.params.id;
+  db.query("SELECT * FROM users WHERE id = ?", [id], (err, result) => {
+    if (err) console.log(err);
+    res.send(result[0]);
+  });
 });
 
 //get user tasks by is user_job_id
@@ -51,12 +80,12 @@ app.post("/user_task", (req, res) => {
   const task_code = req.body.task_code;
   const time_spent = req.body.time_spent;
   const client = req.body.client;
-  const devis = req.body.devis;
+  const id_projet = req.body.projet;
   const date = req.body.date;
   const completed = 0;
   db.query(
-    "INSERT INTO user_task (user_id, user_email, task_id, client_name, devis_code, task_name, task_code, time_spent, completed, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
-    [user_id, user_email, task_id, client, devis, task_name, task_code, time_spent, completed, date],
+    "INSERT INTO user_task (user_id, user_email, task_id, client_name, id_projet, task_name, task_code, time_spent, completed, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+    [user_id, user_email, task_id, client, id_projet, task_name, task_code, time_spent, completed, date],
     (err, result) => {
       if (err) console.log(err);
       res.send(result);
@@ -67,14 +96,18 @@ app.post("/user_task", (req, res) => {
 // get user task by user_id in user_task table, sorted by created_at in descending order
 app.get("/get/user_task", (req, res) => {
   const user_id = req.query.user_id;
-  db.query("SELECT * FROM user_task WHERE user_id = ? AND completed = 0 ORDER BY created_at DESC", [user_id], (err, result) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.send(result);
+  db.query(
+    "SELECT user_task.*, projet.nom FROM user_task INNER JOIN projet ON user_task.id_projet = projet.id WHERE user_id = ? AND completed = 0 ORDER BY created_at DESC",
+    [user_id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.send(result);
+      }
     }
-  });
+  );
 });
 // get user task by user_id in user_task table, sorted by created_at in descending order
 app.get("/admin/get/user_task", (req, res) => {
@@ -86,6 +119,16 @@ app.get("/admin/get/user_task", (req, res) => {
     } else {
       res.send(result);
     }
+  });
+});
+
+//get user_task by project id
+app.get("/admin/get/project_task/:id", (req, res) => {
+  const id = req.params.id;
+  db.query("SELECT * FROM user_task WHERE id_projet = ? ORDER BY created_at DESC", [id], (err, result) => {
+    if (err) console.log(err);
+    res.send(result);
+    console.log(result);
   });
 });
 
@@ -106,10 +149,10 @@ app.get("/clients", (req, res) => {
   });
 });
 
-//get client devis by the client id in the devis table
-app.get("/devis", (req, res) => {
+//get client project by the client id in the devis table
+app.get("/project", (req, res) => {
   const client_id = req.query.client_id;
-  db.query("SELECT * FROM devis_client WHERE id_client = ?", [client_id], (err, result) => {
+  db.query("SELECT * FROM projet WHERE id_client = ?", [client_id], (err, result) => {
     if (err) console.log(err);
     res.send(result);
   });

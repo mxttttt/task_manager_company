@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 
-import Axios from "axios";
+// import axios from "axios";
+import axios from "../axios/axios";
 import { withRouter } from "react-router";
 import bcrypt from "bcryptjs";
 import Cookies from "js-cookie";
@@ -35,12 +36,13 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
 
-    // Use Axios or another method to retrieve the user's salt from the database based on their email
-    Axios.get("http://localhost:3002/user", {
-      params: {
-        email: enteredEmail,
-      },
-    })
+    // Use axios or another method to retrieve the user's salt from the database based on their email
+    axios
+      .get("/user", {
+        params: {
+          email: enteredEmail,
+        },
+      })
       .then((response) => {
         if (response.data.length === 0) {
           setError("Email ou mot de passe incorrect ou vide");

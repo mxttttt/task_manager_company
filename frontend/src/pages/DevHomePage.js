@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Axios from "axios";
+// import axios from "axios";
+import axios from "../axios/axios";
 import moment from "moment";
 import { Button, Card, CardBody, Container, HStack, Stack, Text, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Heading } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -14,10 +15,10 @@ function DevHomePage({ user }) {
     taskCode: "",
     timeSpent: "",
     clientName: "",
-    devisCode: "",
+    projectName: "",
   });
   const [clients, setClients] = useState([]);
-  const [clientDevis, setClientDevis] = useState([]);
+  const [clientProject, setClientProject] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const currentDate = moment();
   const formattedDate = currentDate.format("YYYY-MM-DD");
@@ -31,7 +32,8 @@ function DevHomePage({ user }) {
   const uniqueDates = [...new Set(previousUserTasks.map((task) => moment(task.created_at).format("YYYY-MM-DD")))];
 
   const fetchUserTasks = () => {
-    Axios.get(`http://localhost:3002/get/user_task?user_id=${user.id}`)
+    axios
+      .get(`/get/user_task?user_id=${user.id}`)
       .then((response) => {
         const today = moment();
         const todayDate = today.format("YYYY-MM-DD");
@@ -41,19 +43,23 @@ function DevHomePage({ user }) {
         const tasksPreviousDates = response.data.filter((task) => !moment(task.created_at).isSame(today, "day"));
 
         setUserTask(tasksToday);
+        console.log("tasksToday", tasksToday);
         setPreviousUserTasks(tasksPreviousDates);
+        console.log("tasksToday", tasksToday);
       })
       .catch((error) => console.error("Error fetching user tasks:", error));
   };
 
   const fetchTasks = () => {
-    Axios.get(`http://localhost:3002/tasks?user_job_id=${user.user_job_id}`)
+    axios
+      .get(`/tasks?user_job_id=${user.user_job_id}`)
       .then((response) => setTasks(response.data))
       .catch((error) => console.error("Error fetching tasks:", error));
   };
 
   const fetchClients = () => {
-    Axios.get("http://localhost:3002/clients")
+    axios
+      .get("/clients")
       .then((response) => setClients(response.data))
       .catch((error) => console.error("Error fetching clients:", error));
   };
@@ -87,24 +93,25 @@ function DevHomePage({ user }) {
     const timeInHours = parseTimeInput(taskData.timeSpent);
     const timeSpent = timeInHours * 60;
 
-    if (!taskData.taskId || !taskData.timeSpent || timeSpent <= 0 || !taskData.clientName || !taskData.devisCode) {
+    if (!taskData.taskId || !taskData.timeSpent || timeSpent <= 0 || !taskData.clientName || !taskData.projectName) {
       setErrorMessage("Vous devez remplir tous les champs !");
       return;
     }
 
     setErrorMessage("");
 
-    Axios.post("http://localhost:3002/user_task", {
-      user_id: user.id,
-      user_email: user.email,
-      task_id: taskData.taskId,
-      task_name: taskData.taskName,
-      task_code: taskData.taskCode,
-      time_spent: timeSpent,
-      client: taskData.clientName,
-      devis: taskData.devisCode,
-      date: formattedDate,
-    })
+    axios
+      .post("/user_task", {
+        user_id: user.id,
+        user_email: user.email,
+        task_id: taskData.taskId,
+        task_name: taskData.taskName,
+        task_code: taskData.taskCode,
+        time_spent: timeSpent,
+        client: taskData.clientName,
+        projet: taskData.projectName,
+        date: formattedDate,
+      })
       .then((response) => {
         fetchUserTasks();
 
@@ -125,7 +132,8 @@ function DevHomePage({ user }) {
   };
 
   const handleDeleteTask = (taskUniqueId) => {
-    Axios.delete(`http://localhost:3002/user_task/${taskUniqueId}`)
+    axios
+      .delete(`/user_task/${taskUniqueId}`)
       .then((response) => {
         fetchUserTasks();
 
@@ -152,9 +160,10 @@ function DevHomePage({ user }) {
     const selectedClientId = event.target.value;
 
     if (selectedClientId) {
-      Axios.get(`http://localhost:3002/devis?client_id=${selectedClientId}`)
+      axios
+        .get(`/project?client_id=${selectedClientId}`)
         .then((response) => {
-          setClientDevis(response.data);
+          setClientProject(response.data);
 
           const selectedClient = clients.find((client) => client.id === parseInt(selectedClientId, 10));
 
@@ -165,34 +174,33 @@ function DevHomePage({ user }) {
             }));
           }
         })
-        .catch((error) => console.error("Error fetching client's devis:", error));
+        .catch((error) => console.error("Error fetching client's projects:", error));
     } else {
-      setClientDevis([]);
+      setClientProject([]);
       setTaskData((prevTaskData) => ({
         ...prevTaskData,
         clientName: "",
-        devisCode: "",
+        projectName: "",
       }));
     }
   };
 
-  const handleDevisChange = (event) => {
-    const selectedDevisId = event.target.value;
+  //TODO : A modifier pour afficher les projets du client selectionné
+  const handleProjectChange = (event) => {
+    const selectedProjectId = event.target.value;
+    if (selectedProjectId) {
+      const selectedProject = clientProject.find((project) => project.id === parseInt(selectedProjectId, 10));
 
-    if (selectedDevisId) {
-      const selectedDevis = clientDevis.find((devis) => devis.id === parseInt(selectedDevisId, 10));
-
-      if (selectedDevis) {
+      if (selectedProject) {
         setTaskData((prevTaskData) => ({
           ...prevTaskData,
-          devisCode: selectedDevis.devis_code,
+          projectName: selectedProject.id,
         }));
       }
     } else {
       setTaskData((prevTaskData) => ({
         ...prevTaskData,
-        devisId: "",
-        devisCode: "",
+        projectName: "",
       }));
     }
   };
@@ -221,10 +229,11 @@ function DevHomePage({ user }) {
   const totalCumulatedTime = calculateTotalTimeSpent(userTask) / 60;
 
   const markTaskAsDone = () => {
-    Axios.post("http://localhost:3002/task_done", {
-      user_id: user.id,
-      date: formattedDate,
-    })
+    axios
+      .post("/task_done", {
+        user_id: user.id,
+        date: formattedDate,
+      })
       .then((response) => {
         setUserTask((tasks) => tasks.map((task) => ({ ...task, completed: true })));
         setTimeRemaining({ hours: 7, minutes: 0 });
@@ -233,9 +242,10 @@ function DevHomePage({ user }) {
   };
 
   const handleMarkAsCompleted = (taskId) => {
-    Axios.post("http://localhost:3002/mark_task_completed", {
-      task_id: taskId,
-    })
+    axios
+      .post("/mark_task_completed", {
+        task_id: taskId,
+      })
       .then((response) => {
         fetchUserTasks();
       })
@@ -265,7 +275,7 @@ function DevHomePage({ user }) {
                       <Thead width={"full"}>
                         <Tr width={"full"}>
                           <Th>Client : </Th>
-                          <Th>Devis n° : </Th>
+                          <Th>Projets : </Th>
                           <Th>Tâche : </Th>
                           <Th>Code : </Th>
                           <Th>Temps : </Th>
@@ -278,7 +288,7 @@ function DevHomePage({ user }) {
                           .map((task) => (
                             <Tr key={task.id} width={"full"}>
                               <Td>{task.client_name}</Td>
-                              <Td>{task.devis_code}</Td>
+                              <Td>{task.nom}</Td>
                               <Td>{task.task_name}</Td>
                               <Td>{task.task_code}</Td>
                               <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
@@ -315,7 +325,7 @@ function DevHomePage({ user }) {
                   <Thead width={"full"}>
                     <Tr width={"full"}>
                       <Th>Client : </Th>
-                      <Th>Devis n° : </Th>
+                      <Th>Projets : </Th>
                       <Th>Tâche : </Th>
                       <Th>Code : </Th>
                       <Th>Temps : </Th>
@@ -326,7 +336,7 @@ function DevHomePage({ user }) {
                     {activeUserTasks.map((task) => (
                       <Tr key={task.id} width={"full"}>
                         <Td>{task.client_name}</Td>
-                        <Td>{task.devis_code}</Td>
+                        <Td>{task.nom}</Td>
                         <Td>{task.task_name}</Td>
                         <Td>{task.task_code}</Td>
                         <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
@@ -363,11 +373,11 @@ function DevHomePage({ user }) {
 
               <TaskForm
                 clients={clients}
-                clientDevis={clientDevis}
+                clientProject={clientProject}
                 tasks={tasks}
                 taskData={taskData}
                 handleClientChange={handleClientChange}
-                handleDevisChange={handleDevisChange}
+                handleProjectChange={handleProjectChange}
                 handleTaskChange={handleTaskChange}
                 handleAddTask={handleAddTask}
               />
