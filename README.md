@@ -1,7 +1,3 @@
-I'm unable to directly access external URLs, including GitHub repositories. However, I can help you draft a `README.md` file based on the typical structure of such files for a project like "TemP'Up". You can then customize this template with the specific details from your GitHub repository.
-
----
-
 # TemP'Up
 
 ## Description
@@ -90,6 +86,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 For any questions or suggestions, please reach out through the GitHub repository's issues section or directly to the maintainer.
 
----
-
-Feel free to modify this template to include specific details about your project, such as screenshots, additional setup instructions, a more detailed description of the features, etc.
