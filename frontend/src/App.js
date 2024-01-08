@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 import { useHistory } from "react-router-dom";
 
 import PrivateRoute from "./pages/private/PrivateRoute";
@@ -13,11 +18,23 @@ import SocialNetworkHomePage from "./pages/SocialNetworkHomePage";
 import SpaceManagementHomePage from "./pages/SpaceManagementHomePage";
 import UpinkHomePage from "./pages/UpinkHomePage";
 import AdminHomePage from "./pages/AdminHomePage";
-import { Avatar, Button, Card, CardBody, HStack, Stack, Text, List, ListItem } from "@chakra-ui/react";
+import {
+  Avatar,
+  Button,
+  Card,
+  CardBody,
+  HStack,
+  Stack,
+  Text,
+  List,
+  ListItem,
+} from "@chakra-ui/react";
 import { Logo } from "./components/Logo";
 
 function App() {
-  const [user, setUser] = useState(Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null);
+  const [user, setUser] = useState(
+    Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null
+  );
   const [loggedIn, setLoggedIn] = useState(Cookies.get("loggedIn") === "true");
   const history = useHistory();
 
@@ -66,24 +83,64 @@ function App() {
       <div className="navbar">
         <div className="flex justify-between w-full p-3 px-4">
           {user ? (
-            <Card width={"full"} className="flex" direction={"row"} justifyContent={"center"}>
+            <Card
+              width={"full"}
+              display={"flex"}
+              direction={"row"}
+              justifyContent={"center"}
+            >
               <CardBody>
-                <HStack justifyContent={"space-around"} padding={"auto"}>
-                  <Logo />
-                  <Text>
-                    Bonjour <b>{user.prénom}</b> !{" "}
-                  </Text>
-                  <List>
-                    <ListItem>
-                      <Stack direction={"row"} spacing={4} alignItems={"center"}>
-                        <Avatar size={"sm"} name={user.nom + " " + user.prénom} color={"white"} backgroundColor={"#1a13a8"} src="https://bit.ly/broken-link" />
-                        <Button variant={"outline"} onClick={handleLogout}>
-                          {" "}
-                          Disconnect{" "}
-                        </Button>
-                      </Stack>
-                    </ListItem>
-                  </List>
+                <HStack
+                  display={"flex"}
+                  justifyContent={"space-around"}
+                  padding={"auto"}
+                >
+                  <Stack
+                    direction={"column"}
+                    spacing={0}
+                    alignItems={"center"}
+                    w={"33%"}
+                  >
+                    <Logo />
+                  </Stack>
+                  <Stack
+                    direction={"column"}
+                    spacing={0}
+                    alignItems={"center"}
+                    w={"33%"}
+                  >
+                    <Text>
+                      Bonjour <b>{user.prénom}</b> !{" "}
+                    </Text>
+                  </Stack>
+                  <Stack
+                    direction={"column"}
+                    spacing={0}
+                    alignItems={"center"}
+                    w={"33%"}
+                  >
+                    <List>
+                      <ListItem>
+                        <Stack
+                          direction={"row"}
+                          spacing={4}
+                          alignItems={"center"}
+                        >
+                          <Avatar
+                            size={"sm"}
+                            name={user.nom + " " + user.prénom}
+                            color={"white"}
+                            backgroundColor={"#1a13a8"}
+                            src="https://bit.ly/broken-link"
+                          />
+                          <Button variant={"outline"} onClick={handleLogout}>
+                            {" "}
+                            Disconnect{" "}
+                          </Button>
+                        </Stack>
+                      </ListItem>
+                    </List>
+                  </Stack>
                 </HStack>
               </CardBody>
             </Card>
@@ -108,14 +165,54 @@ function App() {
             />
           </Route>
 
-          <PrivateRoute path="/dev" component={DevHomePage} loggedIn={loggedIn} user={user} />
-          <PrivateRoute path="/office" component={OfficeHomePage} loggedIn={loggedIn} user={user} />
-          <PrivateRoute path="/photo" component={PhotoHomePage} loggedIn={loggedIn} user={user} />
-          <PrivateRoute path="/social-network" component={SocialNetworkHomePage} loggedIn={loggedIn} user={user} />
-          <PrivateRoute path="/space-management" component={SpaceManagementHomePage} loggedIn={loggedIn} user={user} />
-          <PrivateRoute path="/up-ink" component={UpinkHomePage} loggedIn={loggedIn} user={user} />
-          <PrivateRoute path="/graphism" component={GrapHomePage} loggedIn={loggedIn} user={user} />
-          <PrivateRoute path="/admin" component={AdminHomePage} loggedIn={loggedIn} user={user} />
+          <PrivateRoute
+            path="/dev"
+            component={DevHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
+          <PrivateRoute
+            path="/office"
+            component={OfficeHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
+          <PrivateRoute
+            path="/photo"
+            component={PhotoHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
+          <PrivateRoute
+            path="/social-network"
+            component={SocialNetworkHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
+          <PrivateRoute
+            path="/space-management"
+            component={SpaceManagementHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
+          <PrivateRoute
+            path="/up-ink"
+            component={UpinkHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
+          <PrivateRoute
+            path="/graphism"
+            component={GrapHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
+          <PrivateRoute
+            path="/admin"
+            component={AdminHomePage}
+            loggedIn={loggedIn}
+            user={user}
+          />
           <Route path="/">
             <Redirect to="/login" />
           </Route>

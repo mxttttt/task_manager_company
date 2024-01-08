@@ -85,7 +85,18 @@ app.post("/user_task", (req, res) => {
   const completed = 0;
   db.query(
     "INSERT INTO user_task (user_id, user_email, task_id, client_name, id_projet, task_name, task_code, time_spent, completed, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
-    [user_id, user_email, task_id, client, id_projet, task_name, task_code, time_spent, completed, date],
+    [
+      user_id,
+      user_email,
+      task_id,
+      client,
+      id_projet,
+      task_name,
+      task_code,
+      time_spent,
+      completed,
+      date,
+    ],
     (err, result) => {
       if (err) console.log(err);
       res.send(result);
@@ -112,23 +123,47 @@ app.get("/get/user_task", (req, res) => {
 // get user task by user_id in user_task table, sorted by created_at in descending order
 app.get("/admin/get/user_task", (req, res) => {
   const user_id = req.query.user_id;
-  db.query("SELECT * FROM user_task WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC", [user_id], (err, result) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.send(result);
+  db.query(
+    "SELECT * FROM user_task WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC",
+    [user_id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.send(result);
+      }
     }
-  });
+  );
 });
 
-//get user_task by project id
 app.get("/admin/get/project_task/:id", (req, res) => {
-  const id = req.params.id;
-  db.query("SELECT * FROM user_task WHERE id_projet = ? ORDER BY created_at DESC", [id], (err, result) => {
-    if (err) console.log(err);
-    res.send(result);
-    console.log(result);
+  const projectId = req.params.id;
+  const { task_code, date } = req.query;
+
+  let query = "SELECT * FROM user_task WHERE id_projet = ?";
+  let queryParams = [projectId];
+
+  // Add filtering conditions based on the provided query parameters
+  if (task_code) {
+    query += " AND task_code = ?";
+    queryParams.push(task_code);
+  }
+  if (date) {
+    query += " AND DATE(created_at) = ?";
+    queryParams.push(date);
+  }
+
+  query += " ORDER BY created_at DESC";
+
+  db.query(query, queryParams, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Error while fetching tasks");
+    } else {
+      res.send(result);
+      console.log(result);
+    }
   });
 });
 
@@ -152,17 +187,22 @@ app.get("/clients", (req, res) => {
 //get client project by the client id in the devis table
 app.get("/project", (req, res) => {
   const client_id = req.query.client_id;
-  db.query("SELECT * FROM projet WHERE id_client = ?", [client_id], (err, result) => {
-    if (err) console.log(err);
-    res.send(result);
-  });
+  db.query(
+    "SELECT * FROM projet WHERE id_client = ?",
+    [client_id],
+    (err, result) => {
+      if (err) console.log(err);
+      res.send(result);
+    }
+  );
 });
 
 //mark the task as done
 app.post("/task_done", (req, res) => {
   const user_id = req.body.user_id;
   const date = req.body.date;
-  const query = "UPDATE user_task SET completed = true WHERE user_id = ? AND created_at = ?";
+  const query =
+    "UPDATE user_task SET completed = true WHERE user_id = ? AND created_at = ?";
   db.query(query, [user_id, date], (err, result) => {
     if (err) console.log(err);
     res.send(result);

@@ -1,14 +1,44 @@
 import React, { useState, useEffect } from "react";
 import axios from "../axios/axios";
-import { Box, Text, List, Stack, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Table, TableContainer, Thead, Tr, Td, Tbody, Th, Skeleton } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  List,
+  Stack,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Table,
+  TableContainer,
+  Thead,
+  Tr,
+  Td,
+  Tbody,
+  Th,
+  Skeleton,
+  HStack,
+  FormControl,
+  Button,
+  FormLabel,
+  Input,
+  filter,
+} from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Link, useParams } from "react-router-dom";
+import { CloseIcon } from "@chakra-ui/icons";
 
 export default function AdminProjectDetailsContainer() {
   const [projectTasks, setProjectTasks] = useState([]);
-  const [filterTaskCode, setFilterTaskCode] = useState("");
   const { project_id } = useParams();
   const [project, setProject] = useState();
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterTaskCode, setFilterTaskCode] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [activeFilters, setActiveFilters] = useState({
+    taskCode: false,
+    date: false,
+  });
 
   useEffect(() => {
     // Fetch tasks for the selected project
@@ -52,6 +82,41 @@ export default function AdminProjectDetailsContainer() {
     return formattedTime;
   };
 
+  const toggleFilter = (filter) => {
+    setActiveFilters((prev) => ({ ...prev, [filter]: !prev[filter] }));
+    if (filter === "taskCode") {
+      setFilterTaskCode("");
+    } else if (filter === "date") {
+      setFilterDate("");
+    }
+  };
+
+  // Function to filter tasks
+  const applyFilters = () => {
+    // Building the query parameters
+    let queryParams = {};
+    if (filterTaskCode) {
+      queryParams.task_code = filterTaskCode;
+    }
+    if (filterDate) {
+      queryParams.date = filterDate;
+    }
+
+    axios
+      .get(`/admin/get/project_task/${project_id}`, { params: queryParams })
+      .then((response) => {
+        // handle the response
+        const tasksWithDate = response.data.map((task) => ({
+          ...task,
+          date: format(new Date(task.created_at), "yyyy-MM-dd"),
+        }));
+        setProjectTasks(tasksWithDate);
+      })
+      .catch((error) => {
+        console.error("Error applying filters:", error);
+      });
+  };
+
   return (
     <Box width={"full"}>
       <Breadcrumb>
@@ -67,12 +132,25 @@ export default function AdminProjectDetailsContainer() {
         </BreadcrumbItem>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to={`/admin/projects/${project_id}`}>
-            {project ? project.nom : <Skeleton as={"span"} display={"block"} height="10px" width="100px" />}
+            {project ? (
+              project.nom
+            ) : (
+              <Skeleton
+                as={"span"}
+                display={"block"}
+                height="10px"
+                width="100px"
+              />
+            )}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
       <Text fontSize={"md"} fontWeight={"bold"}>
-        {project ? project.nom : <Skeleton as={"span"} display={"block"} height="10px" width="100px" />}
+        {project ? (
+          project.nom
+        ) : (
+          <Skeleton as={"span"} display={"block"} height="10px" width="100px" />
+        )}
       </Text>
       <Stack direction={"column"} width={"full"} display={"flex"}>
         <TableContainer width={"full"}>
@@ -98,22 +176,16 @@ export default function AdminProjectDetailsContainer() {
               ) : (
                 <>
                   <Tr>
-                    <Td>...</Td>
-                    <Td>...</Td>
-                    <Td>...</Td>
-                    <Td>...</Td>
+                    <Skeleton as={Td} height={"10px"} />
+                    <Skeleton as={Td} height={"10px"} />
+                    <Skeleton as={Td} height={"10px"} />
+                    <Skeleton as={Td} height={"10px"} />
                   </Tr>
                   <Tr>
-                    <Td>...</Td>
-                    <Td>...</Td>
-                    <Td>...</Td>
-                    <Td>...</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>...</Td>
-                    <Td>...</Td>
-                    <Td>...</Td>
-                    <Td>...</Td>
+                    <Skeleton as={Td} width={"full"} height={"20px"} />
+                    <Skeleton as={Td} height={"20px"} />
+                    <Skeleton as={Td} height={"20px"} />
+                    <Skeleton as={Td} height={"20px"} />
                   </Tr>
                 </>
               )}
@@ -121,6 +193,49 @@ export default function AdminProjectDetailsContainer() {
           </Table>
         </TableContainer>
       </Stack>
+
+      <Box width={"full"}>
+        {/* existing Breadcrumb and Text components... */}
+        <Button onClick={() => setShowFilters(!showFilters)} mt={4}>
+          {showFilters ? "Hide Filters" : "Show Filters"}
+        </Button>
+
+        {showFilters && (
+          <Box mt={4}>
+            <HStack spacing={4}>
+              <FormControl>
+                <FormLabel>Task Code</FormLabel>
+                <Input
+                  type="text"
+                  value={filterTaskCode}
+                  onChange={(e) => setFilterTaskCode(e.target.value)}
+                  isDisabled={!activeFilters.taskCode}
+                />
+                <Button onClick={() => toggleFilter("taskCode")}>
+                  {activeFilters.taskCode ? <CloseIcon /> : "Add"}
+                </Button>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Date</FormLabel>
+                <Input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  isDisabled={!activeFilters.date}
+                />
+                <Button onClick={() => toggleFilter("date")}>
+                  {activeFilters.date ? <CloseIcon /> : "Add"}
+                </Button>
+              </FormControl>
+            </HStack>
+            <Button onClick={applyFilters} mt={4}>
+              Apply Filters
+            </Button>
+          </Box>
+        )}
+
+        {/* existing Table component... */}
+      </Box>
     </Box>
   );
 }

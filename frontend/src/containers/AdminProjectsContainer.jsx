@@ -15,7 +15,7 @@ import {
   Checkbox,
   Input,
   List,
-  Select,
+  Button,
   Wrap,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
@@ -24,6 +24,7 @@ export default function AdminProjectsContainer() {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(new Set());
   const [searchClientName, setSearchClientName] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     // Fetch the list of projects from the server
@@ -90,7 +91,7 @@ export default function AdminProjectsContainer() {
       <Stack
         direction={"row"}
         width={"100%"}
-        justifyContent={"space-between"}
+        justifyContent={"space-around"}
         alignItems={"start"}
         mb={2}
       >
@@ -154,20 +155,9 @@ export default function AdminProjectsContainer() {
             </Text>
           </Center>
         </Stack> */}
-        <Stack width={"max-content"} direction={"column"} ml={6}>
-          <Text fontSize={"md"} fontWeight={"bold"}>
-            Filter
-          </Text>
+        <Stack width={"max-content"} direction={"column"}>
           <List spacing={3} mt={2}>
             <Wrap spacing={3} mt={2}>
-              <label htmlFor="searchClient">Rechercher un client : </label>
-              <Input
-                type="text"
-                id="searchClient"
-                value={searchClientName}
-                onChange={(e) => setSearchClientName(e.target.value)}
-              />
-
               <Text fontSize={"md"} fontWeight={"bold"}>
                 Temps cumulé
               </Text>
@@ -176,6 +166,22 @@ export default function AdminProjectsContainer() {
               </Text>
             </Wrap>
           </List>
+        </Stack>
+      </Stack>
+      <Stack direction={"row"} display={"flex"} justifyContent={"center"}>
+        <Stack direction={"column"}>
+          <Button onClick={() => setShowFilters(!showFilters)} mt={4} mb={4}>
+            {showFilters ? "Hide Filters" : "Show Filters"}
+          </Button>
+          {showFilters && (
+            <Input
+              type="text"
+              placeholder="Rechercher un projet"
+              value={searchClientName}
+              onChange={(e) => setSearchClientName(e.target.value)}
+              mb={4}
+            />
+          )}
         </Stack>
       </Stack>
     </Box>

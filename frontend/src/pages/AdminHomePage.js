@@ -43,7 +43,7 @@ function AdminHomePage() {
         <Stack direction={"row"} spacing={5} mt={"20px"} height={"max-content"}>
           <Card
             direction={"column"}
-            width={"20%"}
+            width={"33%"}
             height={"min-content"}
             borderRadius={"5px"}
           >
@@ -98,7 +98,7 @@ function AdminHomePage() {
           </Card>
           <Card
             direction={"column"}
-            width={"60%"}
+            width={"66%"}
             height={"100%"}
             borderRadius={"5px"}
             display={"flex"}
@@ -129,6 +129,7 @@ function AdminHomePage() {
               </Switch>
             </CardBody>
           </Card>
+          <Stack direction={"column"} width={"33%"}></Stack>
         </Stack>
       </Container>
     </Container>
