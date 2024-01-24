@@ -85,18 +85,7 @@ app.post("/user_task", (req, res) => {
   const completed = 0;
   db.query(
     "INSERT INTO user_task (user_id, user_email, task_id, client_name, id_projet, task_name, task_code, time_spent, completed, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
-    [
-      user_id,
-      user_email,
-      task_id,
-      client,
-      id_projet,
-      task_name,
-      task_code,
-      time_spent,
-      completed,
-      date,
-    ],
+    [user_id, user_email, task_id, client, id_projet, task_name, task_code, time_spent, completed, date],
     (err, result) => {
       if (err) console.log(err);
       res.send(result);
@@ -123,18 +112,14 @@ app.get("/get/user_task", (req, res) => {
 // get user task by user_id in user_task table, sorted by created_at in descending order
 app.get("/admin/get/user_task", (req, res) => {
   const user_id = req.query.user_id;
-  db.query(
-    "SELECT * FROM user_task WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC",
-    [user_id],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
-      } else {
-        res.send(result);
-      }
+  db.query("SELECT * FROM user_task WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC", [user_id], (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.send(result);
     }
-  );
+  });
 });
 
 app.get("/admin/get/project_task/:id", (req, res) => {
@@ -178,31 +163,49 @@ app.delete("/user_task/:id", (req, res) => {
 
 //get clients from the client table
 app.get("/clients", (req, res) => {
-  db.query("SELECT * FROM client ORDER BY id", (err, result) => {
-    if (err) console.log(err);
-    res.send(result);
+  const page = req.query.page || 1;
+  const offset = (page - 1) * 10;
+  // db.query("SELECT * FROM client ORDER BY client_name ASC LIMIT 10 OFFSET ?", [offset], (err, result) => {
+  //   if (err) console.log(err);
+  //   res.send(result);
+  // });
+  // db.query("SELECT COUNT(*) AS total FROM client", (err, result) => {
+  //   if (err) console.log(err);
+  //   res.send(result);
+  // });
+  const fetchPromise = new Promise((resolve, reject) => {
+    db.query("SELECT * FROM client ORDER BY client_name ASC LIMIT 10 OFFSET ?", [offset], (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+  const countPromise = new Promise((resolve, reject) => {
+    db.query("SELECT COUNT(*) AS total FROM client", (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+
+  Promise.all([fetchPromise, countPromise]).then((values) => {
+    const [clients, count] = values;
+    res.send({ clients, total: count[0].total, total_pages: Math.ceil(count[0].total / 10) });
   });
 });
 
 //get client project by the client id in the devis table
 app.get("/project", (req, res) => {
   const client_id = req.query.client_id;
-  db.query(
-    "SELECT * FROM projet WHERE id_client = ?",
-    [client_id],
-    (err, result) => {
-      if (err) console.log(err);
-      res.send(result);
-    }
-  );
+  db.query("SELECT * FROM projet WHERE id_client = ?", [client_id], (err, result) => {
+    if (err) console.log(err);
+    res.send(result);
+  });
 });
 
 //mark the task as done
 app.post("/task_done", (req, res) => {
   const user_id = req.body.user_id;
   const date = req.body.date;
-  const query =
-    "UPDATE user_task SET completed = true WHERE user_id = ? AND created_at = ?";
+  const query = "UPDATE user_task SET completed = true WHERE user_id = ? AND created_at = ?";
   db.query(query, [user_id, date], (err, result) => {
     if (err) console.log(err);
     res.send(result);

@@ -1,29 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "../axios/axios";
-import { Box, Text, Stack, List } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Box, Text, Stack, List, Center, Button, background } from "@chakra-ui/react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import ClientListHStack from "../components/ClientListHStack";
 
 export default function AdminClientsContainer() {
   const [clients, setClients] = useState([]);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = useMemo(() => Number(searchParams.get("page")) || 1, [searchParams]);
+  const [totalPages, setTotalPages] = useState();
   useEffect(() => {
     // Fetch the list of clients from the server
     axios
-      .get("/clients")
+      .get("/clients?page=" + page)
       .then((response) => {
-        setClients(response.data);
+        setClients(response.data.clients);
+        console.log(response.data.total_pages);
+        setTotalPages(response.data.total_pages);
       })
       .catch((error) => {
         console.error("Error fetching clients:", error);
       });
-  }, []);
+  }, [page]);
 
   return (
     <Box>
       {/* Content for Clients tab */}
-      <Text fontSize={"md"} fontWeight={"bold"}>
+      <Text fontSize={"md"} fontWeight={"bold"} textAlign={"center"}>
         Liste des clients
       </Text>
       {/* get all the client in a list of button */}
@@ -40,6 +44,25 @@ export default function AdminClientsContainer() {
             </>
           )}
         </List>
+        {/* Pagination Button Number */}
+        <Center>
+          <Stack direction={"row"} spacing={3} mt={6}>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <Button
+                variant={"outline"}
+                as={Link}
+                key={index}
+                to={`/admin/clients?page=${index + 1}`}
+                px={6}
+                color={index + 1 === page ? "white" : "black"}
+                background={index + 1 === page ? "blue.900" : "transparent"}
+                _hover={{ bg: "blue.900", color: "white" }}
+              >
+                {index + 1}
+              </Button>
+            ))}
+          </Stack>
+        </Center>
       </Stack>
     </Box>
   );

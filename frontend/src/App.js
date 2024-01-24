@@ -84,7 +84,7 @@ function App() {
                     <List>
                       <ListItem>
                         <Stack direction={"row"} spacing={4} alignItems={"center"}>
-                          <Avatar size={"sm"} name={user.nom + " " + user.prénom} color={"white"} backgroundColor={"#1a13a8"} src="https://bit.ly/broken-link" />
+                          <Avatar size={"sm"} name={user.nom + " " + user.prénom} color={"white"} backgroundColor={"#1a13a8"} />
                           <Button variant={"outline"} onClick={handleLogout}>
                             {" "}
                             Disconnect{" "}

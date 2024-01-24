@@ -81,12 +81,12 @@ export default function AdminProjectsContainer() {
   };
 
   return (
-    <Box width={"full"}>
+    <Box width={"auto"}>
       <Text textAlign={"center"} fontSize={"md"} fontWeight={"bold"} pb={3}>
         Liste des projets
       </Text>
-      <Stack direction={"row"} width={"100%"} justifyContent={"space-around"} alignItems={"start"} mb={2}>
-        <Stack direction={"column"} display={"flex"}>
+      <Stack direction={"row"} display={"flex"} width={"auto"} justifyContent={"space-around"} alignItems={"start"} mb={2}>
+        <Stack direction={"column"} display={"flex"} width={"min-content"}>
           <TableContainer width={"full"}>
             <Table variant="simple" width={"full"}>
               <Thead>
