@@ -2,10 +2,10 @@ import { useRef, useState, useEffect } from "react";
 
 // import axios from "axios";
 import axios from "../axios/axios";
-import { withRouter } from "react-router";
 import bcrypt from "bcryptjs";
 import Cookies from "js-cookie";
 import { Box, Button, Checkbox, Container, FormControl, FormLabel, Heading, HStack, Input, Stack, Text } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import { Logo } from "../components/Logo";
 import { PasswordField } from "../components/PasswordField";
 // // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
@@ -14,10 +14,11 @@ import { PasswordField } from "../components/PasswordField";
 // const hashedPassword2 = bcrypt.hashSync("6Zj4bD6kBQ7l", salt);
 // console.log(hashedPassword2);
 
-function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
+function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if the user is already logged in
@@ -25,10 +26,10 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
       const authenticatedUser = Cookies.get("user");
       if (authenticatedUser) {
         const parsedUser = JSON.parse(authenticatedUser);
-        history.push(getDashboardRoute(parsedUser.user_job_id));
+        navigate(getDashboardRoute(parsedUser.user_job_id));
       }
     }
-  }, [history, getDashboardRoute]);
+  }, [getDashboardRoute]);
 
   function submitHandler(event) {
     event.preventDefault();
@@ -52,7 +53,7 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
           const hashedPassword = bcrypt.hashSync(enteredPassword, user.salt);
           if (hashedPassword === user.password) {
             setError(null); // Clear error message
-            history.push(getDashboardRoute(user.user_job_id));
+            navigate(getDashboardRoute(user.user_job_id));
             // Update the user state in the App component
             setUser(user);
             setLoggedIn(true);
@@ -153,4 +154,4 @@ function LoginPage({ setUser, history, getDashboardRoute, setLoggedIn }) {
   );
 }
 
-export default withRouter(LoginPage);
+export default LoginPage;

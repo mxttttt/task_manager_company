@@ -1,31 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "../axios/axios";
-import {
-  Box,
-  Stack,
-  Table,
-  Text,
-  Thead,
-  Tbody,
-  Th,
-  Tr,
-  TableContainer,
-  Td,
-  Skeleton,
-  Checkbox,
-  Input,
-  List,
-  Button,
-  Wrap,
-} from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Box, Stack, Table, Text, Thead, Tbody, Th, Tr, TableContainer, Td, Skeleton, Checkbox, Input, List, Button, Wrap, Select, useQuery } from "@chakra-ui/react";
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function AdminProjectsContainer() {
   const [projects, setProjects] = useState([]);
+  const [clients, setClients] = useState([]);
   const [selectedProject, setSelectedProject] = useState(new Set());
-  const [searchClientName, setSearchClientName] = useState("");
+  // const [searchClientName, setSearchClientName] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
-
+  console.log(searchParams);
   useEffect(() => {
     // Fetch the list of projects from the server
     axios
@@ -35,6 +20,16 @@ export default function AdminProjectsContainer() {
       })
       .catch((error) => {
         console.error("Error fetching projects:", error);
+      });
+
+    // Fetch the list of clients from the server
+    axios
+      .get("/clients")
+      .then((response) => {
+        setClients(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching clients:", error);
       });
   }, []);
 
@@ -67,11 +62,13 @@ export default function AdminProjectsContainer() {
     return projects.filter((project) => {
       const clientName = project.client_name.toLowerCase();
       const projectName = project.nom.toLowerCase();
-      const searchClientNameLower = searchClientName.toLowerCase();
-      return (
-        clientName.includes(searchClientNameLower) ||
-        projectName.includes(searchClientNameLower)
-      );
+      const searchClientId = searchParams.get("id_client") || "";
+
+      const searchQueryStr = searchParams.get("q") ?? "";
+      let result = true;
+      if (searchClientId !== "") result = result && project.id_client === parseInt(searchClientId, 10);
+      if (searchQueryStr !== "") result = result && (clientName.includes(searchQueryStr.toLowerCase()) || projectName.includes(searchQueryStr.toLowerCase()));
+      return result;
     });
   };
 
@@ -88,13 +85,7 @@ export default function AdminProjectsContainer() {
       <Text textAlign={"center"} fontSize={"md"} fontWeight={"bold"} pb={3}>
         Liste des projets
       </Text>
-      <Stack
-        direction={"row"}
-        width={"100%"}
-        justifyContent={"space-around"}
-        alignItems={"start"}
-        mb={2}
-      >
+      <Stack direction={"row"} width={"100%"} justifyContent={"space-around"} alignItems={"start"} mb={2}>
         <Stack direction={"column"} display={"flex"}>
           <TableContainer width={"full"}>
             <Table variant="simple" width={"full"}>
@@ -111,15 +102,10 @@ export default function AdminProjectsContainer() {
                   filterProjects(projects).map((project) => (
                     <Tr key={project.id}>
                       <Td>
-                        <Checkbox
-                          isChecked={selectedProject.has(project.id)}
-                          onChange={() => handleCheckboxChange(project.id)}
-                        />
+                        <Checkbox isChecked={selectedProject.has(project.id)} onChange={() => handleCheckboxChange(project.id)} />
                       </Td>
                       <Td>
-                        <Link to={`/admin/projects/${project.id}`}>
-                          {project.nom}
-                        </Link>
+                        <Link to={`/admin/projects/${project.id}`}>{project.nom}</Link>
                       </Td>
                       <Td>{project.client_name}</Td>
                       <Td>{formatHoursAndMinutes(project.time_spent / 60)}</Td>
@@ -174,13 +160,31 @@ export default function AdminProjectsContainer() {
             {showFilters ? "Hide Filters" : "Show Filters"}
           </Button>
           {showFilters && (
-            <Input
-              type="text"
-              placeholder="Rechercher un projet"
-              value={searchClientName}
-              onChange={(e) => setSearchClientName(e.target.value)}
-              mb={4}
-            />
+            <>
+              <Input
+                type="text"
+                placeholder="Rechercher un projet"
+                value={searchParams.get("q") ?? ""}
+                onChange={(e) => setSearchParams({ ...Object.fromEntries(searchParams), q: e.target.value })}
+                mb={4}
+              />
+
+              <Text fontSize={"md"} fontWeight={"bold"}>
+                Filtrer par client
+              </Text>
+              <Select
+                placeholder="Filtrer par client"
+                value={searchParams.get("id_client") ?? ""}
+                onChange={(e) => setSearchParams({ ...Object.fromEntries(searchParams), id_client: e.target.value })}
+              >
+                {/* get the all the client from the db */}
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.client_name}
+                  </option>
+                ))}
+              </Select>
+            </>
           )}
         </Stack>
       </Stack>

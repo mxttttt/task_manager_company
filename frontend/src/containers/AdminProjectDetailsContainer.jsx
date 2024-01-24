@@ -132,25 +132,12 @@ export default function AdminProjectDetailsContainer() {
         </BreadcrumbItem>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to={`/admin/projects/${project_id}`}>
-            {project ? (
-              project.nom
-            ) : (
-              <Skeleton
-                as={"span"}
-                display={"block"}
-                height="10px"
-                width="100px"
-              />
-            )}
+            {project ? project.nom : <Skeleton as={"span"} display={"block"} height="10px" width="100px" />}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
       <Text fontSize={"md"} fontWeight={"bold"}>
-        {project ? (
-          project.nom
-        ) : (
-          <Skeleton as={"span"} display={"block"} height="10px" width="100px" />
-        )}
+        {project ? project.nom : <Skeleton as={"span"} display={"block"} height="10px" width="100px" />}
       </Text>
       <Stack direction={"column"} width={"full"} display={"flex"}>
         <TableContainer width={"full"}>
@@ -205,27 +192,13 @@ export default function AdminProjectDetailsContainer() {
             <HStack spacing={4}>
               <FormControl>
                 <FormLabel>Task Code</FormLabel>
-                <Input
-                  type="text"
-                  value={filterTaskCode}
-                  onChange={(e) => setFilterTaskCode(e.target.value)}
-                  isDisabled={!activeFilters.taskCode}
-                />
-                <Button onClick={() => toggleFilter("taskCode")}>
-                  {activeFilters.taskCode ? <CloseIcon /> : "Add"}
-                </Button>
+                <Input type="text" value={filterTaskCode} onChange={(e) => setFilterTaskCode(e.target.value)} isDisabled={!activeFilters.taskCode} />
+                <Button onClick={() => toggleFilter("taskCode")}>{activeFilters.taskCode ? <CloseIcon /> : "Add"}</Button>
               </FormControl>
               <FormControl>
                 <FormLabel>Date</FormLabel>
-                <Input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  isDisabled={!activeFilters.date}
-                />
-                <Button onClick={() => toggleFilter("date")}>
-                  {activeFilters.date ? <CloseIcon /> : "Add"}
-                </Button>
+                <Input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} isDisabled={!activeFilters.date} />
+                <Button onClick={() => toggleFilter("date")}>{activeFilters.date ? <CloseIcon /> : "Add"}</Button>
               </FormControl>
             </HStack>
             <Button onClick={applyFilters} mt={4}>

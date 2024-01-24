@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "../axios/axios";
 import {
   Box,
@@ -31,7 +31,17 @@ export default function AdminUsersDetailsContainer() {
   const [filterTaskCode, setFilterTaskCode] = useState("");
   const { user_id } = useParams();
   const [user, setUser] = useState();
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [groupedTasks, setGroupedTasks] = useState({});
 
+  const filteredUserTasks = useMemo(
+    () =>
+      userTasks.filter((task) => {
+        // Filtrer les tâches en fonction du nom du client
+        return task.client_name.toLowerCase().includes(searchClientName.toLowerCase());
+      }),
+    [searchClientName, userTasks]
+  );
   useEffect(() => {
     // Fetch tasks for the selected user
 
@@ -61,10 +71,30 @@ export default function AdminUsersDetailsContainer() {
       });
   }, [user_id]);
 
-  const filteredUserTasks = userTasks.filter((task) => {
-    // Filtrer les tâches en fonction du nom du client
-    return task.client_name.toLowerCase().includes(searchClientName.toLowerCase());
-  });
+  useEffect(() => {
+    // Filtrer les tâches en fonction de la date sélectionnée
+    const filteredTasks = filteredUserTasks.filter((task) => {
+      return task.date === format(selectedDate, "yyyy-MM-dd");
+    });
+
+    // Update groupedTasks based on the filtered tasks
+    const updatedGroupedTasks = filteredTasks.reduce((groups, task) => {
+      const date = task.date;
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(task);
+      return groups;
+    }, {});
+
+    setGroupedTasks(updatedGroupedTasks);
+
+    // Calculer le total des heures sur les tâches filtrées
+    const total = filteredTasks.reduce((acc, task) => acc + parseFloat(task.time_spent), 0);
+    const totalFormatted = formatHoursAndMinutes(total / 60);
+    setTotalHours(totalFormatted);
+  }, [selectedDate, filteredUserTasks]);
+
   const filterAndCalculateTotal = () => {
     // Filtrer les tâches en fonction du code de tâche
     const filteredTasks = filteredUserTasks.filter((task) => (filterTaskCode ? task.task_code === filterTaskCode : true));
@@ -88,15 +118,12 @@ export default function AdminUsersDetailsContainer() {
     return formattedTime;
   };
 
-  // Grouper les tâches par date
-  const groupedTasks = filteredUserTasks.reduce((groups, task) => {
-    const date = task.date;
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(task);
-    return groups;
-  }, {});
+  const handleDateChange = (selectedDate) => {
+    // Ensure that selectedDate is a Date object
+    const dateObject = selectedDate instanceof Date ? selectedDate : format(new Date(selectedDate), "yyyy-MM-dd");
+
+    setSelectedDate(dateObject);
+  };
 
   return (
     <Box>
@@ -119,47 +146,47 @@ export default function AdminUsersDetailsContainer() {
               <Text fontSize={"md"} fontWeight={"bold"}>
                 Tâches de {user ? user.prénom : <Skeleton as={"span"} height={"1em"} width={"70px"}></Skeleton>}
               </Text>
-              {/* Display tasks for the selected user */}
-              {Object.entries(groupedTasks).map(([date, tasksForDate]) => (
-                <Box key={date} mt={6}>
-                  <Text fontSize={"md"} fontWeight={"bold"}>
-                    {date}
-                  </Text>
-                  <TableContainer>
-                    <Table variant={"simple"} mt={3}>
-                      <Thead>
-                        <Tr>
-                          <Th>Client</Th>
-                          <Th>Tâche</Th>
-                          <Th>Code</Th>
-                          <Th>Temps passé</Th>
+              {/* Display selected date */}
+              <Text fontSize={"md"} fontWeight={"bold"}>
+                {format(selectedDate, "yyyy-MM-dd")}
+              </Text>
+              {/* Display tasks for the selected date */}
+              {groupedTasks[selectedDate] ? (
+                <TableContainer>
+                  <Table variant={"simple"} mt={3}>
+                    <Thead>
+                      <Tr>
+                        <Th>Client</Th>
+                        <Th>Tâche</Th>
+                        <Th>Code</Th>
+                        <Th>Temps passé</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {groupedTasks[selectedDate].map((task) => (
+                        <Tr key={task.id}>
+                          <Td>{task.client_name}</Td>
+                          <Td>{task.task_name}</Td>
+                          <Td>{task.task_code}</Td>
+                          <Td>{formatHoursAndMinutes(task.time_spent / 60)}</Td>
                         </Tr>
-                      </Thead>
-                      <Tbody>
-                        {tasksForDate.map((task) => (
-                          <Tr key={task.id}>
-                            <Td>{task.client_name}</Td>
-                            <Td>{task.task_name}</Td>
-                            <Td>{task.task_code}</Td>
-                            <Td>{formatHoursAndMinutes(task.time_spent / 60)}</Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
-                </Box>
-              ))}
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Text color={"red"}>Aucune tâche effectuée à ce jour</Text>
+              )}
             </Stack>
 
             <Stack width={"20%"} direction={"column"}>
               <Text fontSize={"md"} fontWeight={"bold"}>
-                Filter
+                Filtres
               </Text>
-              <List spacing={3} mt={6}>
-                <Wrap spacing={3} mt={6}>
-                  <label htmlFor="searchClient">Rechercher un client : </label>
-                  <Input type="text" id="searchClient" value={searchClientName} onChange={(e) => setSearchClientName(e.target.value)} />
-                  <Select placeholder="Filter by Task Code" value={filterTaskCode} onChange={(e) => setFilterTaskCode(e.target.value)}>
+              <List spacing={3} mt={4}>
+                <Wrap spacing={3}>
+                  <Input placeholder="Rechercher un client" type="text" id="searchClient" value={searchClientName} onChange={(e) => setSearchClientName(e.target.value)} />
+                  <Select placeholder="Filtrer par code" value={filterTaskCode} onChange={(e) => setFilterTaskCode(e.target.value)}>
                     {/* get the all the task from the db */}
                     {userTasks.map((task) => (
                       <option key={task.id} value={task.task_code}>
@@ -181,6 +208,8 @@ export default function AdminUsersDetailsContainer() {
                   >
                     Filter & Calculate Total
                   </Button>
+                  <label htmlFor="selectDate">Rechercher par date : </label>
+                  <Input type="date" id="selectDate" value={selectedDate} onChange={(e) => handleDateChange(e.target.value)} />
                 </Wrap>
               </List>
             </Stack>
