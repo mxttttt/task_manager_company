@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("./config/db");
 const cors = require("cors");
+const { databaseQuery } = require("./utils/databaseQuery");
 
 const app = express();
 
@@ -164,17 +165,11 @@ app.delete("/user_task/:id", (req, res) => {
 //get clients from the client table
 app.get("/clients", (req, res) => {
   const page = req.query.page || 1;
+  const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
   const offset = (page - 1) * 10;
-  // db.query("SELECT * FROM client ORDER BY client_name ASC LIMIT 10 OFFSET ?", [offset], (err, result) => {
-  //   if (err) console.log(err);
-  //   res.send(result);
-  // });
-  // db.query("SELECT COUNT(*) AS total FROM client", (err, result) => {
-  //   if (err) console.log(err);
-  //   res.send(result);
-  // });
+
   const fetchPromise = new Promise((resolve, reject) => {
-    db.query("SELECT * FROM client ORDER BY client_name ASC LIMIT 10 OFFSET ?", [offset], (err, result) => {
+    db.query("SELECT * FROM client ORDER BY client_name ASC LIMIT ? OFFSET ?", [limit, offset], (err, result) => {
       if (err) reject(err);
       resolve(result);
     });
@@ -223,4 +218,115 @@ app.post("/mark_task_completed", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// ASANA API
+
+// app.get("/asana/sync-clients", (req, res) => {
+//   const asana = require("./config/asana");
+//   const workspaceId = process.env.ASANA_WORKSPACE_ID;
+//   const teamId = process.env.ASANA_TEAM_ID;
+//   const opts = {
+//     limit: 100,
+//     // offset: "eyJ0eXAiOJiKV1iQLCJhbGciOiJIUzI1NiJ9",
+//     workspace: workspaceId,
+//     team: teamId,
+//     archived: false,
+//     opt_fields: "name",
+//   };
+//   //get all the clients name and GID from asana
+//   asana.projectsApiInstance
+//     .getProjects(opts)
+//     .then((clientsResult) => {
+//       const clientsList = res.send(clientsResult.data);
+
+//       //Récupérer les sections de chaque client
+//       const sectionPromises = clientsList.map((client) => {
+//         const clientsGID = client.gid;
+//         const opts = {
+//           project: clientsGID,
+//           opt_fields: "name",
+//         };
+//         return asana.sectionsApiInstance.getSectionsForProject(opts);
+//       });
+
+//       // Attendre que toutes les requêtes pour les sections soient complétées
+//       Promise.all(sectionPromises)
+//         .then((sectionsResults) => {
+//           // Ajouter les sections à chaque client
+//           const clientsWithSections = clientsList.map((client, index) => {
+//             const sections = sectionsResults[index].data;
+//             return { ...client, sections };
+//           });
+
+//           res.send(clientsWithSections);
+//         })
+//         .catch((err) => {
+//           res.status(500).send({ error: "Erreur lors de la récupération des sections." });
+//         });
+//     })
+//     .catch((err) => {
+//       res.status(500).send({ error: "Erreur lors de la récupération des clients." });
+//     });
+// });
+
+// /!\ Fetch all clients and sections of each client from asana
+
+app.get("/asana/sync-clients", async (req, res) => {
+  try {
+    const asana = require("./config/asana");
+    const workspaceId = process.env.ASANA_WORKSPACE_ID;
+    const teamId = process.env.ASANA_TEAM_ID;
+    const opts = {
+      limit: 100,
+      workspace: workspaceId,
+      team: teamId,
+      archived: false,
+      opt_fields: "name",
+    };
+
+    // Récupérer tous les projets
+    const projectsResult = await asana.projectsApiInstance.getProjects(opts);
+    const projects = projectsResult.data;
+
+    // Récupérer les sections de chaque projet
+
+    const projectsWithSections = [];
+
+    for (let i = 0; i < projects.length; i++) {
+      const project = projects[i];
+
+      const project_gid = project.gid;
+      // Verification de l'existance du client dans la base de donnée si le gid existe déja sinon l'ajouter en utilisant la fonction mysql duplicate
+
+      await databaseQuery(db, "INSERT INTO client (gid_asana, client_name) VALUES (?, ?) ON DUPLICATE KEY UPDATE client_name = ?", [project_gid, project.name, project.name]);
+      const databaseClient = await databaseQuery(db, "SELECT id FROM client WHERE gid_asana = ?", [project_gid]);
+      const sectionOpts = {
+        opt_fields: "name",
+      };
+      const sectionsResult = await asana.sectionsApiInstance.getSectionsForProject(project_gid, sectionOpts);
+      const sections = sectionsResult.data;
+      for (let j = 0; j < sections.length; j++) {
+        const section = sections[j];
+
+        const section_gid = section.gid;
+        // Verifier si la section est déja dans la base de donnée si oui l'update sinon l'ajouter en utilisant la fonction mysql duplicate
+        await databaseQuery(db, "INSERT INTO projet (section_gid_asana, nom, id_client) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE nom = ?, id_client = ?", [
+          section_gid,
+          section.name,
+          databaseClient[0].id,
+          section.name,
+          databaseClient[0].id,
+        ]);
+      }
+
+      projectsWithSections.push({ ...project, sections });
+    }
+
+    // Envoyer la réponse au client une seule fois
+    res.send(projectsWithSections);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Une erreur s'est produite lors de la récupération des données." });
+  }
 });

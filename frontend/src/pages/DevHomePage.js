@@ -59,8 +59,8 @@ function DevHomePage({ user }) {
 
   const fetchClients = () => {
     axios
-      .get("/clients")
-      .then((response) => setClients(response.data))
+      .get("/clients?limit=100")
+      .then((response) => setClients(response.data.clients))
       .catch((error) => console.error("Error fetching clients:", error));
   };
 
