@@ -26,7 +26,7 @@ export default function AdminProjectsContainer() {
     axios
       .get("/clients")
       .then((response) => {
-        setClients(response.data);
+        setClients(response.data.clients);
       })
       .catch((error) => {
         console.error("Error fetching clients:", error);
