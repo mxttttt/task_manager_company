@@ -32,7 +32,7 @@ function App() {
       setLoggedIn(true);
     }
   }, []);
-
+  console.log(user);
   // Define the getDashboardRoute function here
   function getDashboardRoute(userJobId) {
     switch (userJobId) {
@@ -84,7 +84,8 @@ function App() {
                     <List>
                       <ListItem>
                         <Stack direction={"row"} spacing={4} alignItems={"center"}>
-                          <Avatar size={"sm"} name={user.nom + " " + user.prénom} color={"white"} backgroundColor={"#1a13a8"} />
+                          <Avatar size={"sm"} name={user.nom + " " + user.prénom} color={"white"} backgroundColor={"#1a13a8"} src={user.picture} referrerPolicy="no-referrer" />
+
                           <Button variant={"outline"} onClick={handleLogout}>
                             {" "}
                             Disconnect{" "}

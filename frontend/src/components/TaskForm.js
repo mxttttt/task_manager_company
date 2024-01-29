@@ -2,7 +2,6 @@ import React from "react";
 import { Button, Container, Stack, Select, Input, FormLabel, FormControl } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
 function TaskForm({ clients, clientProject, tasks, taskData, handleClientChange, handleProjectChange, handleTaskChange, handleAddTask }) {
-  console.log("taskData", taskData);
   return (
     <Container width={"full"} maxW={"unset"}>
       <Stack spacing={4} mb={4} direction={"column"}>

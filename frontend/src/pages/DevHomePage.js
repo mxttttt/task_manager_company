@@ -43,9 +43,8 @@ function DevHomePage({ user }) {
         const tasksPreviousDates = response.data.filter((task) => !moment(task.created_at).isSame(today, "day"));
 
         setUserTask(tasksToday);
-        console.log("tasksToday", tasksToday);
+
         setPreviousUserTasks(tasksPreviousDates);
-        console.log("tasksToday", tasksToday);
       })
       .catch((error) => console.error("Error fetching user tasks:", error));
   };

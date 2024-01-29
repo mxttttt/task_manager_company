@@ -41,7 +41,7 @@ app.get("/projects/:id", (req, res) => {
 app.get("/user", (req, res) => {
   const email = req.query.email;
   db.query(
-    "SELECT users.id, users.email,users.nom,users.prénom, users.salt, users.password, users.user_job_id, job.job_name FROM users INNER JOIN job ON users.user_job_id = job.id WHERE email = ?",
+    "SELECT users.id, users.email,users.nom,users.prénom, users.salt, users.password, users.user_job_id, users.picture, job.job_name FROM users INNER JOIN job ON users.user_job_id = job.id WHERE email = ?",
     [email],
     (err, result) => {
       if (err) console.log(err);
