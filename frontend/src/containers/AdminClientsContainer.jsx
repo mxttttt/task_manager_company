@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "../axios/axios";
-import { Box, Text, Stack, List, Center, Button, background } from "@chakra-ui/react";
+import { Box, Text, Stack, List, Center, Button } from "@chakra-ui/react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ClientListHStack from "../components/ClientListHStack";

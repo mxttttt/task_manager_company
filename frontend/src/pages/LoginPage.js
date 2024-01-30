@@ -53,7 +53,7 @@ function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
           const hashedPassword = bcrypt.hashSync(enteredPassword, user.salt);
           if (hashedPassword === user.password) {
             setError(null); // Clear error message
-            navigate(getDashboardRoute(user.user_job_id));
+            navigate(getDashboardRoute(user.role));
             // Update the user state in the App component
             setUser(user);
             setLoggedIn(true);
@@ -127,13 +127,13 @@ function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
           <Stack spacing="6" as={"form"} onSubmit={submitHandler}>
             <Stack spacing="5">
               <FormControl>
-                <FormLabel htmlFor="email">Email</FormLabel>
+                <FormLabel htmlFor="email">E-mail</FormLabel>
                 <Input id="email" type="email" ref={emailInputRef} />
               </FormControl>
               <PasswordField ref={passwordInputRef} />
             </Stack>
             <HStack justify="space-between">
-              <Checkbox defaultChecked>Remember me</Checkbox>
+              <Checkbox defaultChecked>Se souvenir</Checkbox>
               <Button variant="text" size="sm">
                 Forgot password?
               </Button>
@@ -146,7 +146,7 @@ function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
             >
               {error && <Text color="red.500">{error}</Text>}
             </Stack>
-            <Button type="submit">Sign in</Button>
+            <Button type="submit">Se connecter</Button>
           </Stack>
         </Box>
       </Stack>

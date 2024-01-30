@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Container, Stack, Select, Input, FormLabel, FormControl } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
-function TaskForm({ clients, clientProject, tasks, taskData, handleClientChange, handleProjectChange, handleTaskChange, handleAddTask }) {
+function TaskForm({ clients, clientProjects, tasks, taskData, handleClientChange, handleProjectChange, handleTaskChange, handleAddTask }) {
   return (
     <Container width={"full"} maxW={"unset"}>
       <Stack spacing={4} mb={4} direction={"column"}>
@@ -22,7 +22,7 @@ function TaskForm({ clients, clientProject, tasks, taskData, handleClientChange,
             <FormLabel htmlFor="projet">Projets : </FormLabel>
             <Select id="projet" name="projetId" onChange={handleProjectChange}>
               <option value="">Projets : </option>
-              {clientProject.map((project) => (
+              {clientProjects.map((project) => (
                 <option key={project.id} value={project.id}>
                   {project.nom}
                 </option>

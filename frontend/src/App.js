@@ -3,20 +3,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 import PrivateRoute from "./pages/private/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
-import DevHomePage from "./pages/DevHomePage";
+import DashboardPage from "./pages/DashboardPage";
 import Cookies from "js-cookie";
-import GrapHomePage from "./pages/GraphHomePage";
-import OfficeHomePage from "./pages/OfficeHomePage";
-import PhotoHomePage from "./pages/PhotoHomePage";
-import SocialNetworkHomePage from "./pages/SocialNetworkHomePage";
-import SpaceManagementHomePage from "./pages/SpaceManagementHomePage";
-import UpinkHomePage from "./pages/UpinkHomePage";
 import AdminHomePage from "./pages/AdminHomePage";
 import AdminClientsContainer from "./containers/AdminClientsContainer";
 import AdminUsersContainer from "./containers/AdminUsersContainer";
 import AdminUsersDetailsContainer from "./containers/AdminUsersDetailsContainer";
 import AdminProjectsContainer from "./containers/AdminProjectsContainer";
 import AdminProjectDetailsContainer from "./containers/AdminProjectDetailsContainer";
+import AdminSettingsContainer from "./containers/AdminSettingsContainer";
 import { Avatar, Button, Card, CardBody, HStack, Stack, Text, List, ListItem } from "@chakra-ui/react";
 import { Logo } from "./components/Logo";
 
@@ -33,26 +28,13 @@ function App() {
     }
   }, []);
   // Define the getDashboardRoute function here
-  function getDashboardRoute(userJobId) {
-    switch (userJobId) {
-      case 1:
-        return "/dev";
-      case 2:
-        return "/graphism";
-      case 3:
-        return "/social-network";
-      case 4:
-        return "/photo";
-      case 5:
-        return "/office";
-      case 6:
-        return "/space-management";
-      case 7:
-        return "/up-ink";
-      case 8:
-        return "/admin";
-      default:
-        return "/login";
+  function getDashboardRoute(userRole) {
+    if (userRole === "admin") {
+      return "/admin";
+    } else if (userRole === "user") {
+      return "/dashboard";
+    } else {
+      return "/login";
     }
   }
 
@@ -87,7 +69,7 @@ function App() {
 
                           <Button variant={"outline"} onClick={handleLogout}>
                             {" "}
-                            Disconnect{" "}
+                            Déconnexion{" "}
                           </Button>
                         </Stack>
                       </ListItem>
@@ -118,13 +100,7 @@ function App() {
               />
             }
           ></Route>
-          <Route path="/dev" element={<PrivateRoute component={DevHomePage} loggedIn={loggedIn} user={user} />} />
-          <Route path="/graphism" element={<PrivateRoute component={GrapHomePage} loggedIn={loggedIn} user={user} />} />
-          <Route path="/office" element={<PrivateRoute component={OfficeHomePage} loggedIn={loggedIn} user={user} />} />
-          <Route path="/photo" element={<PrivateRoute component={PhotoHomePage} loggedIn={loggedIn} user={user} />} />
-          <Route path="/social-network" element={<PrivateRoute component={SocialNetworkHomePage} loggedIn={loggedIn} user={user} />} />
-          <Route path="/space-management" element={<PrivateRoute component={SpaceManagementHomePage} loggedIn={loggedIn} user={user} />} />
-          <Route path="/up-ink" element={<PrivateRoute component={UpinkHomePage} loggedIn={loggedIn} user={user} />} />
+          <Route path="/dashboard" element={<PrivateRoute component={DashboardPage} loggedIn={loggedIn} user={user} />} />
           <Route path="/admin" element={<PrivateRoute component={AdminHomePage} loggedIn={loggedIn} user={user} />}>
             <Route exact path="/admin" element={<Navigate to="/admin/clients" />} />
             <Route path="/admin/clients" element={<AdminClientsContainer />} />
@@ -132,6 +108,7 @@ function App() {
             <Route path="/admin/users" element={<AdminUsersContainer />} />
             <Route path="/admin/projects/:project_id" element={<AdminProjectDetailsContainer />} />
             <Route path="/admin/projects" element={<AdminProjectsContainer />} />
+            <Route path="/admin/settings" element={<AdminSettingsContainer />} />
           </Route>
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
