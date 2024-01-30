@@ -11,7 +11,7 @@ import { PasswordField } from "../components/PasswordField";
 // // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
 // const salt = bcrypt.genSaltSync(10);
 // console.log(salt);
-// const hashedPassword2 = bcrypt.hashSync("6Zj4bD6kBQ7l", salt);
+// const hashedPassword2 = bcrypt.hashSync("Yea8M52UaKJW", salt);
 // console.log(hashedPassword2);
 
 function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {

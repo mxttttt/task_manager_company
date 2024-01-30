@@ -32,7 +32,6 @@ function App() {
       setLoggedIn(true);
     }
   }, []);
-  console.log(user);
   // Define the getDashboardRoute function here
   function getDashboardRoute(userJobId) {
     switch (userJobId) {

@@ -330,3 +330,38 @@ app.get("/asana/sync-clients", async (req, res) => {
     res.status(500).send({ error: "Une erreur s'est produite lors de la récupération des données." });
   }
 });
+
+// Fetch users email and photo 168x168 from asana
+app.get("/asana/sync-users", async (req, res) => {
+  try {
+    const asana = require("./config/asana");
+    const workspaceId = process.env.ASANA_WORKSPACE_ID;
+    // const teamId = process.env.ASANA_ALL_TEAM_ID;
+    const opts = {
+      limit: 100,
+      workspace: workspaceId,
+      // team: teamId,
+      opt_fields: "email, photo.image_128x128",
+    };
+
+    // Récupérer les emails et photos des utilisateurs
+    const usersResult = await asana.usersApiInstance.getUsers(opts);
+    const users = usersResult.data;
+
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+
+      const user_email = user.email;
+
+      const user_photo = user.photo !== null ? user.photo["image_128x128"] : null;
+
+      // Verifier si l'utilisateur est déja dans la base de donnée en fonction de son email si oui l'update sinon l'ajouter en utilisant la fonction mysql duplicate
+
+      await databaseQuery(db, "UPDATE users SET picture= ? WHERE email = ?", [user_photo, user_email]);
+    }
+    res.status(200).send(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Une erreur s'est produite lors de la récupération des données." });
+  }
+});

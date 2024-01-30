@@ -16,7 +16,6 @@ export default function AdminClientsContainer() {
       .get("/clients?page=" + page)
       .then((response) => {
         setClients(response.data.clients);
-        console.log(response.data.total_pages);
         setTotalPages(response.data.total_pages);
       })
       .catch((error) => {

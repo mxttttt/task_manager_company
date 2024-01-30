@@ -264,7 +264,7 @@ function DevHomePage({ user }) {
             {uniqueDates
               .filter((date) => previousUserTasks.some((task) => moment(task.created_at).isSame(date, "day") && !task.completed))
               .map((date) => (
-                <Card display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                <Card display={"flex"} justifyContent={"center"} alignItems={"center"} key={uniqueDates.id}>
                   <Heading as={"h3"} size={"md"} p={"15px"}>
                     Tâches créées le {moment(date).format("DD/MM/YYYY")} :
                   </Heading>

@@ -10,7 +10,6 @@ export default function AdminProjectsContainer() {
   // const [searchClientName, setSearchClientName] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
-  console.log(searchParams);
   useEffect(() => {
     // Fetch the list of projects from the server
     axios
