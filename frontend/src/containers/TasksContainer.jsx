@@ -1,72 +1,74 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Heading, Button, Card, HStack } from "@chakra-ui/react";
 import axios from "../axios/axios";
 import moment from "moment";
 import TaskTable from "../components/TaskTable";
 import formatHoursAndMinutes from "../lib/helpers/formatHoursAndMinutes";
+import { useTasks } from "../providers/TasksProvider";
 
 const currentDate = moment();
 const formattedDate = currentDate.format("YYYY-MM-DD");
 
 export default function TasksContainer({ user }) {
-  const [userTask, setUserTask] = useState([]);
-  const [previousUserTasks, setPreviousUserTasks] = useState([]);
+  //   const [userTask, setUserTask] = useState([]);
+  //   const [previousUserTasks, setPreviousUserTasks] = useState([]);
 
-  const [timeRemaining, setTimeRemaining] = useState({ hours: 7, minutes: 0 });
+  //   const [timeRemaining, setTimeRemaining] = useState({ hours: 7, minutes: 0 });
 
-  useEffect(() => {
-    fetchUserTasks();
-  }, [user]);
+  //   const timeRemaining = useMemo(() => {}, []);s
+
+  const { tasks, fetchTasks } = useTasks();
+  console.log(tasks);
+  const tasksToday = useMemo(() => tasks.filter((task) => moment(task.created_at).isSame(currentDate, "day")), [tasks]);
+  const previousUserTasks = useMemo(() => tasks.filter((task) => !moment(task.created_at).isSame(currentDate, "day")), [tasks]);
+
   const uniqueDates = [...new Set(previousUserTasks.map((task) => moment(task.created_at).format("YYYY-MM-DD")))];
 
-  const fetchUserTasks = () => {
-    axios
-      .get(`/get/user_task?user_id=${user.id}`)
-      .then((response) => {
-        const today = moment();
-        const todayDate = today.format("YYYY-MM-DD");
+  //   const fetchUserTasks = () => {
+  //     axios
+  //       .get(`/get/user_task?user_id=${user.id}`)
+  //       .then((response) => {
+  //         const today = moment();
+  //         const todayDate = today.format("YYYY-MM-DD");
 
-        // Separate tasks completed today and tasks completed on previous dates
-        const tasksToday = response.data.filter((task) => moment(task.created_at).isSame(today, "day"));
-        const tasksPreviousDates = response.data.filter((task) => !moment(task.created_at).isSame(today, "day"));
+  //         // Separate tasks completed today and tasks completed on previous dates
+  //         const tasksToday = response.data.filter((task) => moment(task.created_at).isSame(today, "day"));
+  //         const tasksPreviousDates = response.data.filter((task) => !moment(task.created_at).isSame(today, "day"));
 
-        setUserTask(tasksToday);
+  //         setUserTask(tasksToday);
 
-        setPreviousUserTasks(tasksPreviousDates);
-      })
-      .catch((error) => console.error("Error fetching user tasks:", error));
-  };
+  //         setPreviousUserTasks(tasksPreviousDates);
+  //       })
+  //       .catch((error) => console.error("Error fetching user tasks:", error));
+  //   };
 
   const handleDeleteTask = (taskUniqueId) => {
     axios
       .delete(`/user_task/${taskUniqueId}`)
       .then((response) => {
-        fetchUserTasks();
+        fetchTasks();
 
-        const deletedTask = userTask.find((task) => task.id === taskUniqueId);
+        const deletedTask = tasks.find((task) => task.id === taskUniqueId);
         const deletedTimeSpent = deletedTask ? deletedTask.time_spent : 0;
 
-        setTimeRemaining((prevTimeRemaining) => {
-          const updatedHours = prevTimeRemaining.hours + Math.trunc(deletedTimeSpent / 60);
-          const updatedMinutes = prevTimeRemaining.minutes + Math.round(deletedTimeSpent % 60);
+        // setTimeRemaining((prevTimeRemaining) => {
+        //   const updatedHours = prevTimeRemaining.hours + Math.trunc(deletedTimeSpent / 60);
+        //   const updatedMinutes = prevTimeRemaining.minutes + Math.round(deletedTimeSpent % 60);
 
-          const adjustedHours = updatedMinutes >= 60 ? updatedHours + 1 : updatedHours;
-          const adjustedMinutes = updatedMinutes >= 60 ? updatedMinutes - 60 : updatedMinutes;
+        //   const adjustedHours = updatedMinutes >= 60 ? updatedHours + 1 : updatedHours;
+        //   const adjustedMinutes = updatedMinutes >= 60 ? updatedMinutes - 60 : updatedMinutes;
 
-          return {
-            hours: adjustedHours,
-            minutes: adjustedMinutes,
-          };
-        });
+        //   return {
+        //     hours: adjustedHours,
+        //     minutes: adjustedMinutes,
+        //   };
+        // });
       })
       .catch((error) => console.error("Error deleting the task:", error));
   };
 
-  const calculateTotalTimeSpent = (tasks) => {
-    return tasks.reduce((totalTime, task) => totalTime + parseFloat(task.time_spent), 0);
-  };
-
-  const totalCumulatedTime = calculateTotalTimeSpent(userTask) / 60;
+  const totalCumulatedTime = useMemo(() => tasksToday.reduce((totalTime, task) => totalTime + parseFloat(task.time_spent), 0) / 60, [tasksToday]);
+  const remainingTime = formatHoursAndMinutes(7 - totalCumulatedTime);
 
   const markTaskAsDone = () => {
     axios
@@ -75,8 +77,7 @@ export default function TasksContainer({ user }) {
         date: formattedDate,
       })
       .then((response) => {
-        setUserTask((tasks) => tasks.map((task) => ({ ...task, completed: true })));
-        setTimeRemaining({ hours: 7, minutes: 0 });
+        fetchTasks();
       })
       .catch((error) => console.error("Error marking all tasks as completed:", error));
   };
@@ -87,12 +88,12 @@ export default function TasksContainer({ user }) {
         task_id: taskId,
       })
       .then((response) => {
-        fetchUserTasks();
+        fetchTasks();
       })
       .catch((error) => console.error("Error marking task as completed:", error));
   };
 
-  const activeUserTasks = userTask.filter((task) => task.completed === 0);
+  const activeUserTasks = tasksToday.filter((task) => task.completed === 0);
 
   return (
     <>
@@ -117,16 +118,10 @@ export default function TasksContainer({ user }) {
         </Heading>
         {/* La table existante pour les tâches effectuées */}
         <TaskTable userTasks={activeUserTasks} onDeleteTask={handleDeleteTask} onMarkAsCompleted={handleMarkAsCompleted} />
-        <p>
-          Temps restant à effectuer:{" "}
-          {timeRemaining.hours === 0 && timeRemaining.minutes === 0
-            ? "Vous avez atteint votre quota horaire pour la journée."
-            : formatHoursAndMinutes(timeRemaining.hours, timeRemaining.minutes)}
-        </p>
+        <p>Temps restant à effectuer: {remainingTime === 0 ? "Vous avez atteint votre quota horaire pour la journée." : formatHoursAndMinutes(remainingTime)}</p>
 
-        {timeRemaining.hours === 0 && timeRemaining.minutes === 0 && (
-          <p>Total de votre journée : {formatHoursAndMinutes(Math.floor(totalCumulatedTime), Math.round((totalCumulatedTime % 1) * 60))}.</p>
-        )}
+        {remainingTime === 0 && <p>Total de votre journée : {formatHoursAndMinutes(Math.floor(totalCumulatedTime), Math.round((totalCumulatedTime % 1) * 60))}.</p>}
+        {/* TODO revoir le helper formathoursandminutes */}
       </Card>
       <HStack display={"flex"} justifyContent={"center"}>
         <Button onClick={markTaskAsDone}>Marquer toutes les tâches comme terminées</Button>

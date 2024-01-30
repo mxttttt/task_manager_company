@@ -5,6 +5,8 @@ import { Alert, AlertIcon } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import parseTimeInput from "../lib/helpers/parseTimeInput";
 
+import { useTasks } from "../providers/TasksProvider";
+
 import moment from "moment";
 const currentDate = moment();
 const formattedDate = currentDate.format("YYYY-MM-DD");
@@ -23,6 +25,8 @@ export default function TaskFormContainer({ user }) {
   });
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { fetchTasks: fetchUserTasks } = useTasks();
 
   useEffect(() => {
     fetchClients();
@@ -130,17 +134,7 @@ export default function TaskFormContainer({ user }) {
         date: formattedDate,
       })
       .then((response) => {
-        // fetchUserTasks(); TODO
-        // setTimeRemaining((prevTimeRemaining) => {
-        //   const totalMinutes = prevTimeRemaining.hours * 60 + prevTimeRemaining.minutes;
-        //   const updatedTotalMinutes = totalMinutes - timeSpent;
-        //   const updatedHours = Math.floor(updatedTotalMinutes / 60);
-        //   const updatedMinutes = updatedTotalMinutes % 60;
-        //   return {
-        //     hours: updatedHours,
-        //     minutes: updatedMinutes,
-        //   };
-        // }); TODO
+        fetchUserTasks();
       })
       .catch((error) => console.error("Error posting time spent:", error));
   };
