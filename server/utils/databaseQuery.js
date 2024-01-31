@@ -9,4 +9,4 @@ function databaseQuery(db, query, params) {
     });
   });
 } // export default databaseQuery;
-module.exports.databaseQuery = databaseQuery;
+module.exports = databaseQuery;

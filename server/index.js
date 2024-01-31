@@ -1,16 +1,26 @@
+const registerLogin = require("./endpoints/auth");
+const cookieParser = require("cookie-parser");
 const express = require("express");
 const db = require("./config/db");
 const cors = require("cors");
-const { databaseQuery } = require("./utils/databaseQuery");
+const databaseQuery = require("./utils/databaseQuery");
 
 const app = express();
 
 const PORT = 3002;
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 
+//MIDLLEWARES
+const authMiddleware = require("./middlewares/auth");
+app.use(authMiddleware);
+
+// Register the login endpoint
+registerLogin(app);
+
 //Route to get all users
-app.get("/users", (req, res) => {
+app.get("/api/users", (req, res) => {
   db.query("SELECT * FROM users", (err, result) => {
     if (err) console.log(err);
     res.send(result);
@@ -18,7 +28,7 @@ app.get("/users", (req, res) => {
 });
 
 //Route to get all projects
-app.get("/projects", (req, res) => {
+app.get("/api/projects", (req, res) => {
   db.query(
     "SELECT projet.*, user_task.client_name, SUM(user_task.time_spent) as time_spent FROM `projet` INNER JOIN user_task ON projet.id = user_task.id_projet  GROUP BY projet.id;",
     (err, result) => {
@@ -29,7 +39,7 @@ app.get("/projects", (req, res) => {
 });
 
 //Route to get project by is id
-app.get("/projects/:id", (req, res) => {
+app.get("/api/projects/:id", (req, res) => {
   const id = req.params.id;
   db.query("SELECT * FROM projet WHERE id = ?", [id], (err, result) => {
     if (err) console.log(err);
@@ -38,10 +48,10 @@ app.get("/projects/:id", (req, res) => {
 });
 
 //Route to get on users from is email
-app.get("/user", (req, res) => {
+app.get("/api/user", (req, res) => {
   const email = req.query.email;
   db.query(
-    "SELECT users.id, users.email,users.nom,users.prénom, users.salt, users.password, users.user_job_id, users.picture, job.job_name, job.role FROM users INNER JOIN job ON users.user_job_id = job.id WHERE email = ?",
+    "SELECT users.id, users.email,users.nom,users.prenom, users.salt, users.password, users.user_job_id, users.picture, job.job_name, job.role FROM users INNER JOIN job ON users.user_job_id = job.id WHERE email = ?",
     [email],
     (err, result) => {
       if (err) console.log(err);
@@ -51,7 +61,7 @@ app.get("/user", (req, res) => {
 });
 
 //Route to get user by is id
-app.get("/users/:id", (req, res) => {
+app.get("/api/users/:id", (req, res) => {
   const id = req.params.id;
   db.query("SELECT users.*, job.job_name FROM users INNER JOIN job on users.user_job_id = job.id WHERE users.id = ?", [id], (err, result) => {
     if (err) console.log(err);
@@ -60,7 +70,7 @@ app.get("/users/:id", (req, res) => {
 });
 
 //get user tasks by is user_job_id
-app.get("/tasks", (req, res) => {
+app.get("/api/tasks", (req, res) => {
   const user_job_id = req.query.user_job_id;
   db.query(
     "SELECT tasks.id, tasks.task_name, tasks.task_code, tasks.task_job_id, job.job_name FROM tasks INNER JOIN job ON tasks.task_job_id = job.id WHERE tasks.task_job_id = ?",
@@ -73,7 +83,7 @@ app.get("/tasks", (req, res) => {
 });
 
 //post user task
-app.post("/user_task", (req, res) => {
+app.post("/api/user_task", (req, res) => {
   const user_id = req.body.user_id;
   const user_email = req.body.user_email;
   const task_id = req.body.task_id;
@@ -95,7 +105,7 @@ app.post("/user_task", (req, res) => {
 });
 
 // get user task by user_id in user_task table, sorted by created_at in descending order
-app.get("/get/user_task", (req, res) => {
+app.get("/api/get/user_task", (req, res) => {
   const user_id = req.query.user_id;
   db.query(
     "SELECT user_task.*, projet.nom FROM user_task INNER JOIN projet ON user_task.id_projet = projet.id WHERE user_id = ? AND completed = 0 ORDER BY created_at DESC",
@@ -111,7 +121,7 @@ app.get("/get/user_task", (req, res) => {
   );
 });
 // get user task by user_id in user_task table, sorted by created_at in descending order
-app.get("/admin/get/user_task", (req, res) => {
+app.get("/api/admin/get/user_task", (req, res) => {
   const user_id = req.query.user_id;
   db.query(
     "SELECT user_task.*, projet.nom FROM user_task INNER JOIN projet ON user_task.id_projet = projet.id WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC",
@@ -127,7 +137,7 @@ app.get("/admin/get/user_task", (req, res) => {
   );
 });
 
-app.get("/admin/get/project_task/:id", (req, res) => {
+app.get("/api/admin/get/project_task/:id", (req, res) => {
   const projectId = req.params.id;
   const { task_code, date } = req.query;
 
@@ -158,7 +168,7 @@ app.get("/admin/get/project_task/:id", (req, res) => {
 });
 
 //delete user task by is user_id in user_task table
-app.delete("/user_task/:id", (req, res) => {
+app.delete("/api/user_task/:id", (req, res) => {
   const id = req.params.id;
   db.query("DELETE FROM user_task WHERE id = ?", [id], (err, result) => {
     if (err) console.log(err);
@@ -167,7 +177,7 @@ app.delete("/user_task/:id", (req, res) => {
 });
 
 //get clients from the client table
-app.get("/clients", (req, res) => {
+app.get("/api/clients", (req, res) => {
   const page = req.query.page || 1;
   const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
   const offset = (page - 1) * 10;
@@ -192,7 +202,7 @@ app.get("/clients", (req, res) => {
 });
 
 //get client project by the client id in the devis table
-app.get("/project", (req, res) => {
+app.get("/api/project", (req, res) => {
   const client_id = req.query.client_id;
   db.query("SELECT * FROM projet WHERE id_client = ?", [client_id], (err, result) => {
     if (err) console.log(err);
@@ -201,7 +211,7 @@ app.get("/project", (req, res) => {
 });
 
 //mark the task as done
-app.post("/task_done", (req, res) => {
+app.post("/api/task_done", (req, res) => {
   const user_id = req.body.user_id;
   const date = req.body.date;
   const query = "UPDATE user_task SET completed = true WHERE user_id = ? AND created_at = ?";
@@ -211,7 +221,7 @@ app.post("/task_done", (req, res) => {
   });
 });
 
-app.post("/mark_task_completed", (req, res) => {
+app.post("/api/mark_task_completed", (req, res) => {
   const id = req.body.task_id;
   const query = "UPDATE user_task SET completed = true WHERE id = ?";
   db.query(query, [id], (err, result) => {
@@ -276,7 +286,7 @@ app.listen(PORT, () => {
 
 // /!\ Fetch all clients and sections of each client from asana
 
-app.get("/asana/sync-clients", async (req, res) => {
+app.get("/api/asana/sync-clients", async (req, res) => {
   try {
     const asana = require("./config/asana");
     const workspaceId = process.env.ASANA_WORKSPACE_ID;
@@ -336,7 +346,7 @@ app.get("/asana/sync-clients", async (req, res) => {
 });
 
 // Fetch users email and photo 168x168 from asana
-app.get("/asana/sync-users", async (req, res) => {
+app.get("/api/asana/sync-users", async (req, res) => {
   try {
     const asana = require("./config/asana");
     const workspaceId = process.env.ASANA_WORKSPACE_ID;

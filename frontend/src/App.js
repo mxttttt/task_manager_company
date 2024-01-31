@@ -14,19 +14,11 @@ import AdminProjectDetailsContainer from "./containers/AdminProjectDetailsContai
 import AdminSettingsContainer from "./containers/AdminSettingsContainer";
 import { Avatar, Button, Card, CardBody, HStack, Stack, Text, List, ListItem } from "@chakra-ui/react";
 import { Logo } from "./components/Logo";
+import axios from "./axios/axios";
 
 function App() {
   const [user, setUser] = useState(Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null);
-  const [loggedIn, setLoggedIn] = useState(Cookies.get("loggedIn") === "true");
 
-  useEffect(() => {
-    const authenticatedUser = Cookies.get("user");
-    if (authenticatedUser) {
-      const parsedUser = JSON.parse(authenticatedUser);
-      setUser(parsedUser);
-      setLoggedIn(true);
-    }
-  }, []);
   // Define the getDashboardRoute function here
   function getDashboardRoute(userRole) {
     if (userRole === "admin") {
@@ -39,10 +31,11 @@ function App() {
   }
 
   function handleLogout() {
-    // Clear the user's authentication state and local storage
-    setUser(null);
-    Cookies.remove("user"); // Remove the user cookie
-    Cookies.remove("loggedIn"); // Remove the user cookie
+    axios.post("/logout").then((response) => {
+      if (response.data.success) {
+        setUser(null);
+      }
+    });
   }
 
   return (
@@ -91,17 +84,16 @@ function App() {
               <LoginPage
                 setUser={(user) => {
                   setUser(user);
-                  setLoggedIn(true);
+
                   // Store the authenticated user in local storage
-                  Cookies.set("user", JSON.stringify(user));
+                  Cookies.set("user", JSON.stringify(user)); // TODO : API have to put it and check if it's ok
                 }}
                 getDashboardRoute={getDashboardRoute}
-                setLoggedIn={setLoggedIn}
               />
             }
           ></Route>
-          <Route path="/dashboard" element={<PrivateRoute component={DashboardPage} loggedIn={loggedIn} user={user} />} />
-          <Route path="/admin" element={<PrivateRoute component={AdminHomePage} loggedIn={loggedIn} user={user} />}>
+          <Route path="/dashboard" element={<PrivateRoute component={DashboardPage} user={user} />} />
+          <Route path="/admin" element={<PrivateRoute component={AdminHomePage} user={user} />}>
             <Route exact path="/admin" element={<Navigate to="/admin/clients" />} />
             <Route path="/admin/clients" element={<AdminClientsContainer />} />
             <Route path="/admin/users/:user_id" element={<AdminUsersDetailsContainer />} />

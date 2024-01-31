@@ -2,19 +2,13 @@ import { useRef, useState, useEffect } from "react";
 
 // import axios from "axios";
 import axios from "../axios/axios";
-import bcrypt from "bcryptjs";
 import Cookies from "js-cookie";
 import { Box, Button, Checkbox, Container, FormControl, FormLabel, Heading, HStack, Input, Stack, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "../components/Logo";
 import { PasswordField } from "../components/PasswordField";
-// // A utiliser pour créer les comptes de tout le monde (à faire une seule fois)
-// const salt = bcrypt.genSaltSync(10);
-// console.log(salt);
-// const hashedPassword2 = bcrypt.hashSync("Yea8M52UaKJW", salt);
-// console.log(hashedPassword2);
 
-function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
+function LoginPage({ setUser, getDashboardRoute }) {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const [error, setError] = useState(null);
@@ -22,14 +16,13 @@ function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
 
   useEffect(() => {
     // Check if the user is already logged in
-    if (Cookies.get("loggedIn") === "true") {
-      const authenticatedUser = Cookies.get("user");
-      if (authenticatedUser) {
-        const parsedUser = JSON.parse(authenticatedUser);
-        navigate(getDashboardRoute(parsedUser.role));
-      }
+
+    const authenticatedUser = Cookies.get("user");
+    if (authenticatedUser) {
+      const parsedUser = JSON.parse(authenticatedUser);
+      navigate(getDashboardRoute(parsedUser.role));
     }
-  }, [getDashboardRoute]);
+  }, []);
 
   function submitHandler(event) {
     event.preventDefault();
@@ -39,34 +32,18 @@ function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
 
     // Use axios or another method to retrieve the user's salt from the database based on their email
     axios
-      .get("/user", {
-        params: {
-          email: enteredEmail,
-        },
-      })
+      .post("/login", { email: enteredEmail, password: enteredPassword })
       .then((response) => {
-        if (response.data.length === 0) {
-          setError("Email ou mot de passe incorrect ou vide");
-        } else {
-          const user = response.data[0]; // Assuming you get one user matching the email
-          // Now, use the retrieved user's salt to hash the entered password
-          const hashedPassword = bcrypt.hashSync(enteredPassword, user.salt);
-          if (hashedPassword === user.password) {
-            setError(null); // Clear error message
-            navigate(getDashboardRoute(user.role));
-            // Update the user state in the App component
-            setUser(user);
-            setLoggedIn(true);
-            Cookies.set("loggedIn", "true");
-            Cookies.set("user", JSON.stringify(user));
-          } else {
-            setError("Email ou mot de passe incorrect");
-          }
+        const authenticatedUser = response.data.user;
+        if (authenticatedUser) {
+          setUser(authenticatedUser);
+          navigate(getDashboardRoute(authenticatedUser.role));
         }
       })
       .catch((error) => {
-        console.log(error);
-        setError("Une erreur s'est produite");
+        if (error.response) {
+          setError(error.response.data.message);
+        }
       });
   }
 
