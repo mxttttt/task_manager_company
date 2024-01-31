@@ -4,6 +4,7 @@ import axios from "../axios/axios";
 import moment from "moment";
 import TaskTable from "../components/TaskTable";
 import formatHoursAndMinutes from "../lib/helpers/formatHoursAndMinutes";
+import parseTimeInput from "../lib/helpers/parseTimeInput";
 import { useTasks } from "../providers/TasksProvider";
 
 const currentDate = moment();
@@ -68,7 +69,7 @@ export default function TasksContainer({ user }) {
   };
 
   const totalCumulatedTime = useMemo(() => tasksToday.reduce((totalTime, task) => totalTime + parseFloat(task.time_spent), 0) / 60, [tasksToday]);
-  const remainingTime = formatHoursAndMinutes(7 - totalCumulatedTime);
+  const remainingTime = 7 - totalCumulatedTime;
 
   const markTaskAsDone = () => {
     axios
@@ -118,9 +119,11 @@ export default function TasksContainer({ user }) {
         </Heading>
         {/* La table existante pour les tâches effectuées */}
         <TaskTable userTasks={activeUserTasks} onDeleteTask={handleDeleteTask} onMarkAsCompleted={handleMarkAsCompleted} />
-        <p>Temps restant à effectuer: {remainingTime === 0 ? "Vous avez atteint votre quota horaire pour la journée." : formatHoursAndMinutes(remainingTime)}</p>
+        <p>
+          Temps restant à effectuer: {remainingTime === 0 || remainingTime < 0 ? "Vous avez atteint votre quota horaire pour la journée." : formatHoursAndMinutes(remainingTime)}
+        </p>
 
-        {remainingTime === 0 && <p>Total de votre journée : {formatHoursAndMinutes(Math.floor(totalCumulatedTime), Math.round((totalCumulatedTime % 1) * 60))}.</p>}
+        {(remainingTime === 0 || remainingTime < 0) && <p>Total de votre journée : {formatHoursAndMinutes(totalCumulatedTime)}.</p>}
         {/* TODO revoir le helper formathoursandminutes */}
       </Card>
       <HStack display={"flex"} justifyContent={"center"}>

@@ -113,14 +113,18 @@ app.get("/get/user_task", (req, res) => {
 // get user task by user_id in user_task table, sorted by created_at in descending order
 app.get("/admin/get/user_task", (req, res) => {
   const user_id = req.query.user_id;
-  db.query("SELECT * FROM user_task WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC", [user_id], (err, result) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.send(result);
+  db.query(
+    "SELECT user_task.*, projet.nom FROM user_task INNER JOIN projet ON user_task.id_projet = projet.id WHERE user_id = ? AND completed = 1 ORDER BY created_at DESC",
+    [user_id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+      } else {
+        res.send(result);
+      }
     }
-  });
+  );
 });
 
 app.get("/admin/get/project_task/:id", (req, res) => {

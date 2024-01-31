@@ -14,7 +14,7 @@ export default function TaskTable({ userTasks, onDeleteTask, onMarkAsCompleted }
             <Th>Tâche : </Th>
             <Th>Code : </Th>
             <Th>Temps : </Th>
-            <Th>Action : </Th>
+            {onDeleteTask && onMarkAsCompleted ? <Th>Action : </Th> : null}
           </Tr>
         </Thead>
         <Tbody>
@@ -25,21 +25,31 @@ export default function TaskTable({ userTasks, onDeleteTask, onMarkAsCompleted }
               <Td>{task.task_name}</Td>
               <Td>{task.task_code}</Td>
               <Td>{formatHoursAndMinutes(Math.floor(task.time_spent / 60), Math.round(task.time_spent % 60))}</Td>
-              <Td display={"flex"} justifyContent={"space-between"}>
-                <Button
-                  _hover={({ color: "black" }, { backgroundColor: "red.500" })}
-                  backgroundColor={"#D60620"}
-                  color={"white"}
-                  leftIcon={<DeleteIcon />}
-                  variant={"outline"}
-                  onClick={() => onDeleteTask(task.id)}
-                >
-                  Supprimer
-                </Button>
-                <Button backgroundColor={"lightgoldenrodyellow"} onClick={() => onMarkAsCompleted(task.id)}>
-                  Terminer cette tâche
-                </Button>
-              </Td>
+              {onDeleteTask && onMarkAsCompleted ? (
+                <Td display={"flex"} justifyContent={"space-between"}>
+                  {onDeleteTask ? (
+                    <Button
+                      _hover={({ color: "black" }, { backgroundColor: "red.500" })}
+                      backgroundColor={"#D60620"}
+                      color={"white"}
+                      leftIcon={<DeleteIcon />}
+                      variant={"outline"}
+                      onClick={() => onDeleteTask(task.id)}
+                    >
+                      Supprimer
+                    </Button>
+                  ) : null}
+                  {onMarkAsCompleted ? (
+                    <Button
+                      _hover={({ color: "black" }, { backgroundColor: "lightgoldenrodyellow" })}
+                      backgroundColor={"lightgoldenrodyellow"}
+                      onClick={() => onMarkAsCompleted(task.id)}
+                    >
+                      Terminer cette tâche
+                    </Button>
+                  ) : null}
+                </Td>
+              ) : null}
             </Tr>
           ))}
         </Tbody>

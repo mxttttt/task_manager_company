@@ -23,6 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Link, useParams } from "react-router-dom";
+import TaskTable from "../components/TaskTable";
 
 export default function AdminUsersDetailsContainer() {
   const [userTasks, setUserTasks] = useState([]);
@@ -152,28 +153,29 @@ export default function AdminUsersDetailsContainer() {
               </Text>
               {/* Display tasks for the selected date */}
               {groupedTasks[selectedDate] ? (
-                <TableContainer>
-                  <Table variant={"simple"} mt={3}>
-                    <Thead>
-                      <Tr>
-                        <Th>Client</Th>
-                        <Th>Tâche</Th>
-                        <Th>Code</Th>
-                        <Th>Temps passé</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {groupedTasks[selectedDate].map((task) => (
-                        <Tr key={task.id}>
-                          <Td>{task.client_name}</Td>
-                          <Td>{task.task_name}</Td>
-                          <Td>{task.task_code}</Td>
-                          <Td>{formatHoursAndMinutes(task.time_spent / 60)}</Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                // <TableContainer>
+                //   <Table variant={"simple"} mt={3}>
+                //     <Thead>
+                //       <Tr>
+                //         <Th>Client</Th>
+                //         <Th>Tâche</Th>
+                //         <Th>Code</Th>
+                //         <Th>Temps passé</Th>
+                //       </Tr>
+                //     </Thead>
+                //     <Tbody>
+                //       {groupedTasks[selectedDate].map((task) => (
+                //         <Tr key={task.id}>
+                //           <Td>{task.client_name}</Td>
+                //           <Td>{task.task_name}</Td>
+                //           <Td>{task.task_code}</Td>
+                //           <Td>{formatHoursAndMinutes(task.time_spent / 60)}</Td>
+                //         </Tr>
+                //       ))}
+                //     </Tbody>
+                //   </Table>
+                // </TableContainer>
+                <TaskTable userTasks={groupedTasks[selectedDate]} />
               ) : (
                 <Text color={"red"}>Aucune tâche effectuée à ce jour</Text>
               )}

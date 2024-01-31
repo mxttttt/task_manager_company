@@ -14,7 +14,7 @@ function AdminHomePage({ user }) {
           </Heading>
         </HStack>
         <Stack direction={"row"} spacing={5} mt={"20px"} height={"max-content"}>
-          <Card direction={"column"} width={"33%"} height={"min-content"} borderRadius={"5px"}>
+          <Card direction={"column"} width={"20%"} height={"min-content"} borderRadius={"5px"}>
             <CardBody>
               <Stack direction={"column"}>
                 <List spacing={3} my={6}>
@@ -78,12 +78,11 @@ function AdminHomePage({ user }) {
               </Stack>
             </CardBody>
           </Card>
-          <Card direction={"column"} width={"66%"} height={"100%"} borderRadius={"5px"} display={"flex"} alignItems={"center"} py={6}>
+          <Card direction={"column"} width={"80%"} height={"100%"} borderRadius={"5px"} display={"flex"} alignItems={"left"} py={6}>
             <CardBody width={"full"} display={"flex"} justifyContent={"center"}>
               <Outlet />
             </CardBody>
           </Card>
-          <Stack direction={"column"} width={"33%"}></Stack>
         </Stack>
       </Container>
     </Container>

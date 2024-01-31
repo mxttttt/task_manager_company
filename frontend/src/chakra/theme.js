@@ -9,6 +9,17 @@ const theme = extendTheme({
       },
     },
   },
+  sizes: {
+    sm: "0.6rem",
+    md: "0.8rem",
+    "2md": "0.9rem",
+    lg: "1rem",
+    xl: "1.25rem",
+    "2xl": "1.5rem",
+    "3xl": "2rem",
+    "4xl": "2.25rem",
+  },
+
   fonts: {
     heading: `'DM Sans Variable', sans-serif`,
     body: `'DM Sans Variable', sans-serif`,

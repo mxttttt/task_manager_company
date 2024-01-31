@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "../axios/axios";
-import { Box, Text, Stack, List, Center, Button } from "@chakra-ui/react";
+import { Box, Stack, List, Center, Button, Heading, Text } from "@chakra-ui/react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ClientListHStack from "../components/ClientListHStack";
@@ -24,14 +24,14 @@ export default function AdminClientsContainer() {
   }, [page]);
 
   return (
-    <Box>
+    <Box width={"full"} ml={"20px"}>
       {/* Content for Clients tab */}
-      <Text fontSize={"md"} fontWeight={"bold"} textAlign={"center"}>
-        Liste des clients
-      </Text>
+      <Heading size={"md"} color="blue.900" ml={"12px"}>
+        <Text>Liste des clients</Text>
+      </Heading>
       {/* get all the client in a list of button */}
 
-      <Stack direction={"column"}>
+      <Stack direction={"column"} w={"full"}>
         <List spacing={3} mt={6}>
           {clients.length > 0 ? (
             clients.map((client) => <ClientListHStack key={client.id} client={client} as={Link} to={`/admin/projects?id_client=${client.id}`} />)
@@ -44,8 +44,8 @@ export default function AdminClientsContainer() {
           )}
         </List>
         {/* Pagination Button Number */}
-        <Center>
-          <Stack direction={"row"} spacing={3} mt={6}>
+        <Center margin={"auto"} w={"min-content"} mt={"20px"}>
+          <Stack direction={"row"} spacing={3} mt={6} margin={"auto"} w={"full"}>
             {Array.from({ length: totalPages }, (_, index) => (
               <Button
                 variant={"outline"}
