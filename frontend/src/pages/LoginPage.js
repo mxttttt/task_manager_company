@@ -26,7 +26,7 @@ function LoginPage({ setUser, getDashboardRoute, setLoggedIn }) {
       const authenticatedUser = Cookies.get("user");
       if (authenticatedUser) {
         const parsedUser = JSON.parse(authenticatedUser);
-        navigate(getDashboardRoute(parsedUser.user_job_id));
+        navigate(getDashboardRoute(parsedUser.role));
       }
     }
   }, [getDashboardRoute]);
