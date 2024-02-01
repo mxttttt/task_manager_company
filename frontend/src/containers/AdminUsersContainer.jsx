@@ -13,7 +13,6 @@ export default function AdminUsersContainer() {
     axios
       .get("/users")
       .then((response) => {
-        console.log("response.data", response.data);
         setUsers(response.data);
       })
       .catch((error) => {

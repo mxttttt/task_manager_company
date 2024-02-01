@@ -10,7 +10,7 @@ const UserListHStack = ({ user, onClick, ...props }) => {
       </HStack>
     );
   }
-  console.log("user", user);
+
   return (
     <HStack key={user.id} {...props}>
       <Button

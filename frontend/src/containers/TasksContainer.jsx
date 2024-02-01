@@ -19,7 +19,7 @@ export default function TasksContainer({ user }) {
   //   const timeRemaining = useMemo(() => {}, []);s
 
   const { tasks, fetchTasks } = useTasks();
-  console.log(tasks);
+
   const tasksToday = useMemo(() => tasks.filter((task) => moment(task.created_at).isSame(currentDate, "day")), [tasks]);
   const previousUserTasks = useMemo(() => tasks.filter((task) => !moment(task.created_at).isSame(currentDate, "day")), [tasks]);
 
