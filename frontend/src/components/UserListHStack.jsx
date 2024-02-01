@@ -10,6 +10,7 @@ const UserListHStack = ({ user, onClick, ...props }) => {
       </HStack>
     );
   }
+  console.log("user", user);
   return (
     <HStack key={user.id} {...props}>
       <Button
@@ -24,8 +25,8 @@ const UserListHStack = ({ user, onClick, ...props }) => {
         borderRadius={"5px"}
         onClick={onClick}
       >
-        <Avatar size={"sm"} name={user.nom + " " + user.prénom} color={"white"} src={user.picture} mr={"15px"} />
-        {user.prénom}
+        <Avatar size={"sm"} name={user.nom + " " + user.prenom} color={"white"} src={user.picture} mr={"15px"} />
+        {user.prenom}
       </Button>
     </HStack>
   );

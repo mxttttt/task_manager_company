@@ -51,14 +51,14 @@ function App() {
                   </Stack>
                   <Stack direction={"column"} spacing={0} alignItems={"center"} w={"33%"}>
                     <Text>
-                      Bonjour <b>{user.prénom}</b> !{" "}
+                      Bonjour <b>{user.prenom}</b> !{" "}
                     </Text>
                   </Stack>
                   <Stack direction={"column"} spacing={0} alignItems={"center"} w={"33%"}>
                     <List>
                       <ListItem>
                         <Stack direction={"row"} spacing={4} alignItems={"center"}>
-                          <Avatar size={"sm"} name={user.nom + " " + user.prénom} color={"white"} backgroundColor={"#1a13a8"} src={user.picture} referrerPolicy="no-referrer" />
+                          <Avatar size={"sm"} name={user.nom + " " + user.prenom} color={"white"} backgroundColor={"#1a13a8"} src={user.picture} referrerPolicy="no-referrer" />
 
                           <Button variant={"outline"} onClick={handleLogout}>
                             {" "}

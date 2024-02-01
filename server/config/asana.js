@@ -1,6 +1,5 @@
 require("dotenv").config();
 const Asana = require("asana");
-const e = require("express");
 
 const client = Asana.ApiClient.instance;
 const token = client.authentications["token"];

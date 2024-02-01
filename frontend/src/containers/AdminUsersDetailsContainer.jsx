@@ -138,14 +138,14 @@ export default function AdminUsersDetailsContainer() {
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbItem>
-                <BreadcrumbLink>{user ? user.prénom : <Skeleton as={"span"} display={"block"} height={"1em"} width={"70px"}></Skeleton>}</BreadcrumbLink>
+                <BreadcrumbLink>{user ? user.prenom : <Skeleton as={"span"} display={"block"} height={"1em"} width={"70px"}></Skeleton>}</BreadcrumbLink>
               </BreadcrumbItem>
             </Breadcrumb>
           </Stack>
           <Stack direction={"row"} width={"100%"} justifyContent={"space-between"} alignItems={"start"} mb={2}>
             <Stack direction={"column"}>
               <Text fontSize={"md"} fontWeight={"bold"}>
-                Tâches de {user ? user.prénom : <Skeleton as={"span"} height={"1em"} width={"70px"}></Skeleton>}
+                Tâches de {user ? user.prenom : <Skeleton as={"span"} height={"1em"} width={"70px"}></Skeleton>}
               </Text>
               {/* Display selected date */}
               <Text fontSize={"md"} fontWeight={"bold"}>
