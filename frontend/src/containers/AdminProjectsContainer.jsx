@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "../axios/axios";
 import { Box, Stack, Table, Text, Thead, Tbody, Th, Tr, TableContainer, Td, Skeleton, Checkbox, Input, List, Button, Wrap, Select, Heading } from "@chakra-ui/react";
 import { Link, useSearchParams } from "react-router-dom";
+import { Header } from "../components/Header";
 
 export default function AdminProjectsContainer() {
   const [projects, setProjects] = useState([]);
@@ -81,11 +82,9 @@ export default function AdminProjectsContainer() {
 
   return (
     <Box width={"full"} ml={"20px"}>
-      <Heading size={"md"} color="blue.900" ml={"12px"}>
-        <Text>Liste des projets</Text>
-      </Heading>
+      <Header>Projets</Header>
       <Box width={"auto"}>
-        <Stack direction={"row"} display={"flex"} width={"auto"} justifyContent={"space-around"} alignItems={"start"} mb={2}>
+        <Stack direction={"row"} display={"flex"} width={"auto"} justifyContent={"space-evenly"} alignItems={"start"} my={5}>
           <Stack direction={"column"} display={"flex"} width={"min-content"}>
             <TableContainer width={"full"}>
               <Table variant="simple" width={"full"}>

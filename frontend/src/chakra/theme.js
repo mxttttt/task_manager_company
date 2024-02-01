@@ -27,6 +27,9 @@ const theme = extendTheme({
       800: "#1a13a8E6",
       900: "#1a13a8FF",
     },
+    orange: {
+      900: "#FD4B00",
+    },
   },
 });
 

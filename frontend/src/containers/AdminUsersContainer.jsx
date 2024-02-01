@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "../axios/axios";
-import { Box, Text, List, Stack, Heading, HStack, Wrap, WrapItem } from "@chakra-ui/react";
+import { Box, Text, Stack, Heading, Wrap, WrapItem } from "@chakra-ui/react";
 
 import UserListHStack from "../components/UserListHStack";
 import { Link } from "react-router-dom";
+import { Header } from "../components/Header";
 
 export default function AdminUsersContainer() {
   const [users, setUsers] = useState([]);
@@ -22,16 +23,14 @@ export default function AdminUsersContainer() {
 
   return (
     <Box width={"full"} ml={"20px"}>
-      <Heading size={"md"} color="blue.900" ml={"12px"}>
-        <Text>Liste des utilisateurs</Text>
-      </Heading>
+      <Header>Utilisateurs</Header>
       {/* get all the users in a list of button */}
       <Stack direction={"row"}>
         <Wrap spacing={3} mt={6}>
           {users.length > 0 ? (
             users.map((user) => (
-              <WrapItem>
-                <UserListHStack key={user.id} user={user} as={Link} to={`/admin/users/${user.id}`} />
+              <WrapItem key={user.id}>
+                <UserListHStack user={user} as={Link} to={`/admin/users/${user.id}`} />
               </WrapItem>
             ))
           ) : (

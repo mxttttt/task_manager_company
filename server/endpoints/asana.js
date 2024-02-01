@@ -6,7 +6,7 @@ function registerAsana(app) {
 
   app.get("/api/asana/sync-clients", async (req, res) => {
     try {
-      const asana = require("./config/asana");
+      const asana = require("./config/asanaClient");
       const workspaceId = process.env.ASANA_WORKSPACE_ID;
       const teamId = process.env.ASANA_TEAM_ID;
       const opts = {

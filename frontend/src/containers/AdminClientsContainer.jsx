@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "../axios/axios";
 import { Box, Stack, List, Center, Button, Heading, Text } from "@chakra-ui/react";
 import { Link, useSearchParams } from "react-router-dom";
+import { Header } from "../components/Header";
 
 import ClientListHStack from "../components/ClientListHStack";
 
@@ -26,9 +27,7 @@ export default function AdminClientsContainer() {
   return (
     <Box width={"full"} ml={"20px"}>
       {/* Content for Clients tab */}
-      <Heading size={"md"} color="blue.900" ml={"12px"}>
-        <Text>Liste des clients</Text>
-      </Heading>
+      <Header>Clients</Header>
       {/* get all the client in a list of button */}
 
       <Stack direction={"column"} w={"full"}>

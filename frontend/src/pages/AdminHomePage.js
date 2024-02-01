@@ -1,18 +1,21 @@
 import React from "react";
 
-import { Button, Card, CardBody, Container, HStack, Stack, Text, Heading, List } from "@chakra-ui/react";
+import { Button, Card, CardBody, Container, Stack, Heading, List } from "@chakra-ui/react";
 
 import { Link, Outlet } from "react-router-dom";
+
+import { Header } from "../components/Header";
 
 function AdminHomePage({ user }) {
   return (
     <Container width={"full"} maxWidth={"none"} height={"max-content"} p={"20px"}>
       <Container height={"full"} width={"full"} maxWidth={"unset"}>
-        <HStack display={"flex"} w={"min-content"} padding={"5px"} borderRadius={"5px"} direction={"row"}>
-          <Heading color={"#1a13a8"}>
-            Dashboard <Text fontSize={"md"}>{user.job_name}</Text>
+        <Stack w={"min-content"} padding={"5px"} borderRadius={"5px"} spacing={0}>
+          <Heading as={"h1"} color={"#1a13a8"}>
+            Dashboard
           </Heading>
-        </HStack>
+          <Header fontSize="md">{user.job_name}</Header>
+        </Stack>
         <Stack direction={"row"} spacing={5} mt={"20px"} height={"max-content"}>
           <Card direction={"column"} width={"20%"} height={"min-content"} borderRadius={"5px"}>
             <CardBody>

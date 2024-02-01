@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "../axios/axios";
-import { Box, Text, Stack, List, Center, Button } from "@chakra-ui/react";
+import { Box, Text, Heading } from "@chakra-ui/react";
+import { Header } from "../components/Header";
 
 export default function AdminClientsContainer() {
   const [message, setMessage] = useState("");
@@ -18,10 +19,8 @@ export default function AdminClientsContainer() {
   }
 
   return (
-    <Box>
-      <Text fontSize={"md"} fontWeight={"bold"} textAlign={"center"}>
-        Paramètres
-      </Text>
+    <Box width={"full"} ml={"20px"}>
+      <Header>Paramètres</Header>
     </Box>
   );
 }
