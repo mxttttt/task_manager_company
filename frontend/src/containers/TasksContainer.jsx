@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Heading, Button, Card, HStack, Text } from "@chakra-ui/react";
+import { Stack, Button, Card, HStack, Text } from "@chakra-ui/react";
 import axios from "../axios/axios";
 import moment from "moment";
 import TaskTable from "../components/TaskTable";
 import formatHoursAndMinutes from "../lib/helpers/formatHoursAndMinutes";
 import parseTimeInput from "../lib/helpers/parseTimeInput";
 import { useTasks } from "../providers/TasksProvider";
+import { Header } from "../components/Header";
 
 const currentDate = moment();
 const formattedDate = currentDate.format("YYYY-MM-DD");
@@ -68,10 +69,11 @@ export default function TasksContainer({ user }) {
         .filter((date) => previousUserTasks.some((task) => moment(task.created_at).isSame(date, "day") && !task.completed))
         .map((date) => (
           <Card display={"flex"} justifyContent={"center"} alignItems={"center"} key={uniqueDates.id}>
-            <Heading as={"h3"} size={"md"} p={"15px"}>
-              Tâches créées le {moment(date).format("DD/MM/YYYY")} :
-            </Heading>
-
+            <Stack direction={"row"} p={15}>
+              <Header as={"h3"} size={"md"}>
+                Tâches créées le {moment(date).format("DD/MM/YYYY")} :
+              </Header>
+            </Stack>
             <TaskTable
               userTasks={previousUserTasks.filter((task) => moment(task.created_at).isSame(date, "day") && !task.completed)}
               onDeleteTask={handleDeleteTask}
@@ -80,9 +82,11 @@ export default function TasksContainer({ user }) {
           </Card>
         ))}
       <Card backgroundColor={"white"} display={"flex"} alignItems={"center"}>
-        <Heading as={"h3"} size={"md"} p={"15px"}>
-          Tâches effectuées :
-        </Heading>
+        <Stack direction={"row"} p={15}>
+          <Header as={"h3"} size={"md"}>
+            Tâches effectuées :
+          </Header>
+        </Stack>
         {/* La table existante pour les tâches effectuées */}
         <TaskTable userTasks={activeUserTasks} onDeleteTask={handleDeleteTask} onMarkAsCompleted={handleMarkAsCompleted} />
         <Text my={25}>

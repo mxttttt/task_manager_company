@@ -2,9 +2,9 @@ import React from "react";
 
 import { Heading } from "@chakra-ui/react";
 
-export const Header = ({ fontSize = "xl", children }) => (
+export const Header = ({ as = "h2", fontSize = "xl", children }) => (
   <Heading
-    as={"h2"}
+    as={as}
     zIndex={"1"}
     position={"relative"}
     fontSize={fontSize}

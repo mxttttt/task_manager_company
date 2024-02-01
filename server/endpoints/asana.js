@@ -6,7 +6,7 @@ function registerAsana(app) {
 
   app.get("/api/asana/sync-clients", async (req, res) => {
     try {
-      const asana = require("./config/asanaClient");
+      const asana = require("../config/asanaClient");
       const workspaceId = process.env.ASANA_WORKSPACE_ID;
       const teamId = process.env.ASANA_TEAM_ID;
       const opts = {
@@ -66,14 +66,14 @@ function registerAsana(app) {
   // Fetch users email and photo 168x168 from asana
   app.get("/api/asana/sync-users", async (req, res) => {
     try {
-      const asana = require("./config/asana");
+      const asana = require("../config/asanaClient");
       const workspaceId = process.env.ASANA_WORKSPACE_ID;
       // const teamId = process.env.ASANA_ALL_TEAM_ID;
       const opts = {
         limit: 100,
         workspace: workspaceId,
         // team: teamId,
-        opt_fields: "email, photo.image_128x128",
+        opt_fields: "name, email, photo.image_128x128",
       };
 
       // Récupérer les emails et photos des utilisateurs
@@ -84,12 +84,12 @@ function registerAsana(app) {
         const user = users[i];
 
         const user_email = user.email;
-
+        const user_name = user.name;
         const user_photo = user.photo !== null ? user.photo["image_128x128"] : null;
 
         // Verifier si l'utilisateur est déja dans la base de donnée en fonction de son email si oui l'update sinon l'ajouter en utilisant la fonction mysql duplicate
 
-        await databaseQuery(db, "UPDATE users SET picture= ? WHERE email = ?", [user_photo, user_email]);
+        await databaseQuery(db, "UPDATE users SET picture= ?, name= ? WHERE email = ?", [user_photo, user_name, user_email]);
       }
       res.status(200).send(users);
     } catch (error) {

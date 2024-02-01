@@ -43,7 +43,7 @@ function registerAuth(app) {
     //if password is correct, create a Cookie
     console.log(user);
     res
-      .cookie("user", JSON.stringify({ email: user.email, picture: user.picture, nom: user.nom, prenom: user.prenom, user_role: user.role }), {
+      .cookie("user", JSON.stringify({ email: user.email, picture: user.picture, name: user.name, user_role: user.role }), {
         httpOnly: false,
         secure: process.env.NODE_ENV === "production",
         // sameSite: "strict",

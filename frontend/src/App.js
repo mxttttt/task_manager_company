@@ -15,6 +15,7 @@ import AdminSettingsContainer from "./containers/AdminSettingsContainer";
 import { Avatar, Button, Card, CardBody, HStack, Stack, Text, List, ListItem } from "@chakra-ui/react";
 import { Logo } from "./components/Logo";
 import axios from "./axios/axios";
+import { Header } from "./components/Header";
 
 function App() {
   const [user, setUser] = useState(Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null);
@@ -50,15 +51,21 @@ function App() {
                     <Logo />
                   </Stack>
                   <Stack direction={"column"} spacing={0} alignItems={"center"} w={"33%"}>
-                    <Text>
-                      Bonjour <b>{user.prenom}</b> !{" "}
-                    </Text>
+                    <Stack direction={"column"} margin={"auto"}>
+                      <Text as={"h1"} width={"full"}>
+                        Bonjour
+                        <Header as={"span"} fontSize="md">
+                          <b>{user.name}</b>
+                        </Header>{" "}
+                        !{" "}
+                      </Text>
+                    </Stack>
                   </Stack>
                   <Stack direction={"column"} spacing={0} alignItems={"center"} w={"33%"}>
                     <List>
                       <ListItem>
                         <Stack direction={"row"} spacing={4} alignItems={"center"}>
-                          <Avatar size={"sm"} name={user.nom + " " + user.prenom} color={"white"} backgroundColor={"#1a13a8"} src={user.picture} referrerPolicy="no-referrer" />
+                          <Avatar size={"sm"} name={user.name} color={"white"} backgroundColor={"#1a13a8"} src={user.picture} referrerPolicy="no-referrer" />
 
                           <Button variant={"outline"} onClick={handleLogout}>
                             {" "}

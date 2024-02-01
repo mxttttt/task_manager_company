@@ -1,11 +1,12 @@
 import React from "react";
 import { Button, Container, Stack, Select, Input, FormLabel, FormControl } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
+import { Header } from "./Header";
 function TaskForm({ clients, clientProjects, tasks, taskData, handleClientChange, handleProjectChange, handleTaskChange, handleAddTask }) {
   return (
     <Container width={"full"} maxW={"unset"}>
       <Stack spacing={4} mb={4} direction={"column"}>
-        <h2>Ajouter une tache à votre journée :</h2>
+        <Header fontSize="ms">Ajouter une tache à votre journée :</Header>
         <Stack as={"form"} direction={"row"} width={"full"}>
           <FormControl>
             <FormLabel htmlFor="client">Client : </FormLabel>

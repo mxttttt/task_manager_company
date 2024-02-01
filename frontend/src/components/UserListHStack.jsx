@@ -25,7 +25,7 @@ const UserListHStack = ({ user, onClick, ...props }) => {
         borderRadius={"5px"}
         onClick={onClick}
       >
-        <Avatar size={"sm"} name={user.nom + " " + user.prenom} color={"white"} src={user.picture} mr={"15px"} />
+        <Avatar size={"sm"} name={user.name} color={"white"} src={user.picture} mr={"15px"} />
         {user.prenom}
       </Button>
     </HStack>
