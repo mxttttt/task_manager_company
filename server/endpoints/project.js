@@ -7,7 +7,7 @@ function registerProject(app) {
   //Route to get all projects
   app.get("/api/projects", (req, res) => {
     db.query(
-      "SELECT projet.*, user_task.client_name, SUM(user_task.time_spent) as time_spent FROM `projet` INNER JOIN user_task ON projet.id = user_task.id_projet  GROUP BY projet.id;",
+      "SELECT projet.*, client.client_name, SUM(user_task.time_spent) as time_spent FROM `projet` INNER JOIN user_task ON projet.id = user_task.id_projet LEFT JOIN client ON client.id = projet.id_client GROUP BY projet.id;",
       (err, result) => {
         if (err) console.log(err);
         res.send(result);

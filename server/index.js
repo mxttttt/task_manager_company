@@ -1,3 +1,4 @@
+const path = require("path");
 const registerAuth = require("./endpoints/auth");
 const registerAsana = require("./endpoints/asana");
 const registerProject = require("./endpoints/project");
@@ -17,6 +18,9 @@ const PORT = 3002;
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
+
+// FRONTEND
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 //MIDLLEWARES
 const authMiddleware = require("./middlewares/auth");
@@ -46,3 +50,8 @@ app.listen(PORT, () => {
 });
 
 registerAsana(app);
+
+// BACKEND
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
+});

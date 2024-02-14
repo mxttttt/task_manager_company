@@ -26,7 +26,7 @@ const UserListHStack = ({ user, onClick, ...props }) => {
         onClick={onClick}
       >
         <Avatar size={"sm"} name={user.name} color={"white"} src={user.picture} mr={"15px"} />
-        {user.prenom}
+        {user.name}
       </Button>
     </HStack>
   );
